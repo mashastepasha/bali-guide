@@ -397,6 +397,7 @@
   .sync p { margin:0; font-size:14px; color:var(--muted); }
   .sync.ok { background:#E6F2DC; color:#2E5A16; border-radius:12px; padding:11px 12px; font-size:14px; margin-bottom:8px; }
   .sync-msg { font-size:13px; font-weight:600; color:var(--ink); }
+  form.add .linkbtn { background:none; color:var(--teal-2); font-weight:500; font-size:14px; padding:2px 0; text-decoration:underline; }
   form.add .ghost { background:#fff; color:var(--coral); border:2px solid var(--coral); }
   .pwset { margin:0 0 10px; }
   .pwset summary { cursor:pointer; font-size:14px; font-weight:600; color:var(--teal-2); padding:4px 0 8px; }
@@ -2446,17 +2447,14 @@ function renderMine() {
     : `<p class="lead">Здесь появятся места, отмеченные ☆, и ваши собственные находки.</p><div class="empty">Отметьте ☆ любое место в разделах — оно появится здесь</div><br>`}
     <h4>📱 Мой список на всех устройствах</h4>
     ${me && !me.is_anonymous
-      ? `<div class="sync ok">✅ Вы вошли как <b>${esc(me.email || '')}</b> — список одинаковый везде, где вы вошли с этой почтой. <button class="linkbtn" data-logout="1">Выйти</button></div>
-        <details class="pwset"${mailSent ? ' open' : ''}><summary>🔑 Задать пароль — чтобы входить в приложении на экране телефона</summary>
-          <form class="add sync" id="setPw"><p>Значок гайда на экране «Домой» открывается как отдельное приложение со своей памятью — войдите в нём один раз почтой и паролем.</p>
-          <input name="password" type="password" required minlength="6" placeholder="Новый пароль, не короче 6 символов" autocomplete="new-password"><button type="submit">Сохранить пароль</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form></details>`
-      : `<form class="add sync" id="pwForm"><p>Сейчас список хранится только на этом устройстве. Войдите — и он будет одинаковым на всех устройствах и в приложении на экране телефона.</p>
+      ? `<div class="sync ok">✅ Вы вошли как <b>${esc(me.email || '')}</b> — этот список у вас везде, где вы вошли. <button class="linkbtn" data-logout="1">Выйти</button></div>
+        <details class="pwset"${recovering || mailSent ? ' open' : ''}><summary>🔑 ${recovering ? 'Придумайте новый пароль' : 'Сменить пароль'}</summary>
+          <form class="add sync" id="setPw"><input name="password" type="password" required minlength="6" placeholder="Новый пароль, не короче 6 символов" autocomplete="new-password"><button type="submit">Сохранить пароль</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form></details>`
+      : `<form class="add sync" id="pwForm"><p>Войдите — и ваш список будет на телефоне, компьютере и в значке на экране. <b>Впервые здесь?</b> Просто впишите почту и придумайте пароль — вход создастся сам.</p>
         <input name="email" type="email" required placeholder="Почта" autocomplete="email">
-        <input name="password" type="password" minlength="6" placeholder="Пароль (не короче 6 символов)" autocomplete="current-password">
-        <div class="two"><button type="submit" value="in">Войти</button><button type="submit" value="up" class="ghost">Создать вход</button></div>
-        <button type="button" class="linkbtn" data-magic="1">Забыли пароль или без пароля — прислать ссылку на почту</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form>
-        <form class="add sync" id="linkForm"><p><b>Гайд открыт значком с экрана телефона?</b> Проще всего так: 1) в письме <b>просто нажмите «Sign in»</b> — вы войдёте в Safari; 2) там в «Моём списке» нажмите «🔑 Задать пароль»; 3) вернитесь сюда и войдите почтой и паролем. Если удобнее — скопируйте ссылку из письма и вставьте её ниже (на iPhone удержание пальца на ссылке иногда само её «использует»).</p>
-        <input name="link" placeholder="Вставьте ссылку из письма" autocomplete="off"><button type="submit">Войти по ссылке</button></form>`}
+        <input name="password" type="password" required minlength="6" placeholder="Пароль (не короче 6 символов)" autocomplete="current-password">
+        <button type="submit">Войти</button>
+        <button type="button" class="linkbtn" data-forgot="1">Забыли пароль?</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form>`}
     <h4>Добавить своё место</h4>
     <form class="add" id="addPlace">
       <input name="title" placeholder="Название — например, «Варунг у Комана»" required maxlength="120">
@@ -2528,7 +2526,7 @@ window.addEventListener('popstate', e => {
 // ── Нажатия ──────────────────────────────────────────────────
 document.addEventListener('click', e => {
   if (e.target.closest('[data-logout]')) return logout()
-  if (e.target.closest('[data-magic]')) { const em = (document.querySelector('#pwForm [name=email]') || {}).value; if (!em || !/@/.test(em)) { mailSent = '⚠️ Сначала впишите почту'; return render() } return sendLoginLink(em.trim()) }
+  if (e.target.closest('[data-forgot]')) return forgotPassword()
   const vb = e.target.closest('button[data-visit]'); if (vb) return toggleVisited(vb.dataset.visit)
   const ar = e.target.closest('[data-arr]'); if (ar) { const r = ar.parentElement.querySelector('.row, .subnav'); return r.scrollBy({ left: ar.dataset.arr * r.clientWidth * .7, behavior:'smooth' }) }
   const bk = e.target.closest('[data-back]'); if (bk) return history.state && history.state.d > 0 ? history.back() : go('home')
@@ -2565,8 +2563,7 @@ document.addEventListener('change', e => {
 })
 document.addEventListener('submit', e => {
   if (e.target.id === 'addPlace') { e.preventDefault(); addPlace(new FormData(e.target)) }
-  if (e.target.id === 'pwForm') { e.preventDefault(); const fd = new FormData(e.target); passwordLogin(fd.get('email').trim(), fd.get('password'), e.submitter && e.submitter.value === 'up') }
-  if (e.target.id === 'linkForm') { e.preventDefault(); linkLogin(new FormData(e.target).get('link') || '') }
+  if (e.target.id === 'pwForm') { e.preventDefault(); const fd = new FormData(e.target); passwordLogin(fd.get('email').trim(), fd.get('password')) }
   if (e.target.id === 'setPw') { e.preventDefault(); setPassword(new FormData(e.target).get('password')) }
 })
 document.getElementById('searchForm').onsubmit = e => { e.preventDefault(); query = document.getElementById('q').value.trim(); render() }
@@ -2628,7 +2625,7 @@ async function addPlace(fd) {
 
 // Личный список: у каждого устройства своё невидимое место в облаке (анонимный вход, без регистрации).
 // Вход по почте — чтобы один список был на всех устройствах; список с этого устройства при входе не теряется.
-let me = null, mailSent = ''
+let me = null, mailSent = '', recovering = false
 async function ensureUser() {
   let { data:{ session } } = await db.auth.getSession()
   // вход мог устареть (например, гостя удалили) — тогда начинаем заново
@@ -2655,12 +2652,6 @@ async function mergeAfterLogin() {
   // облако само не пустит дубли (одно место — одна запись)
   if (add.length) await db.from('entries').upsert(add.map(r => ({ entity_type:r.entity_type, data:r.data })), { onConflict:'owner,entity_type,item_key', ignoreDuplicates:true })
 }
-async function sendLoginLink(email) {
-  rememberForMerge()
-  const { error } = await db.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + location.pathname } })
-  mailSent = error ? (/rate|limit|seconds/i.test(error.message) ? '⚠️ Слишком много писем — попробуйте через час' : '⚠️ Не получилось отправить письмо: ' + error.message) : '✉️ Письмо отправлено на ' + email + '. Откройте ссылку из него на этом же устройстве.'
-  const y = window.scrollY; render(); window.scrollTo(0, y)
-}
 // Запоминаем список этого устройства, чтобы после входа добавить его в общий
 function rememberForMerge() {
   try { localStorage.setItem('bali-merge', JSON.stringify([...favs, ...places].map(r => ({ entity_type: favs.includes(r) ? 'fav' : 'place', data:r.data })))) } catch (e) {}
@@ -2669,36 +2660,39 @@ const authMsg = m => /invalid login/i.test(m) ? '⚠️ Неверная поч�
   : /already registered|already been registered/i.test(m) ? '⚠️ Эта почта уже зарегистрирована — нажмите «Войти» (или «прислать ссылку», если пароля нет)'
   : /rate|limit|seconds/i.test(m) ? '⚠️ Слишком много попыток — подождите немного'
   : /least 6|weak|short/i.test(m) ? '⚠️ Пароль слишком короткий — нужно не меньше 6 символов' : '⚠️ ' + m
-async function passwordLogin(email, password, create) {
-  if (!password || password.length < 6) { mailSent = '⚠️ Введите пароль не короче 6 символов'; return render() }
+async function passwordLogin(email, password) {
+  if (!password || password.length < 6) { mailSent = '⚠️ Пароль — не короче 6 символов'; return render() }
   rememberForMerge()
-  const r = create ? await db.auth.signUp({ email, password }) : await db.auth.signInWithPassword({ email, password })
-  if (r.error) { mailSent = authMsg(r.error.message); const y = window.scrollY; render(); window.scrollTo(0, y); return }
-  if (create && !r.data.session) { mailSent = '✉️ Подтвердите почту по ссылке из письма'; return render() }
+  let r = await db.auth.signInWithPassword({ email, password })
+  if (r.error && /invalid login/i.test(r.error.message)) {
+    // такой почты ещё нет — создаём вход; если есть — значит, неверный пароль
+    const up = await db.auth.signUp({ email, password })
+    if (up.error) { mailSent = /already/i.test(up.error.message) ? '⚠️ Неверный пароль. Если забыли — нажмите «Забыли пароль?»' : authMsg(up.error.message); const y = window.scrollY; render(); window.scrollTo(0, y); return }
+    r = up
+  } else if (r.error) { mailSent = authMsg(r.error.message); return render() }
+  if (!r.data.session) { mailSent = '⚠️ Не получилось войти — попробуйте ещё раз'; return render() }
   mailSent = ''
   me = r.data.session.user; await mergeAfterLogin(); await load()
 }
-async function setPassword(password) {
-  const { error } = await db.auth.updateUser({ password })
-  mailSent = error ? authMsg(error.message) : '✅ Пароль сохранён. Теперь в приложении на экране телефона войдите почтой и этим паролем.'
+async function forgotPassword() {
+  const em = (document.querySelector('#pwForm [name=email]') || {}).value
+  if (!em || !/@/.test(em)) { mailSent = '⚠️ Сначала впишите почту'; return render() }
+  const { error } = await db.auth.resetPasswordForEmail(em.trim(), { redirectTo: location.origin + location.pathname })
+  mailSent = error ? authMsg(error.message) : '✉️ Письмо отправлено на ' + em.trim() + '. Нажмите в нём ссылку — откроется гайд, и вы сможете задать новый пароль.'
   const y = window.scrollY; render(); window.scrollTo(0, y)
 }
-// Вход по ссылке, вставленной вручную (для значка на экране iPhone): достаём из неё одноразовый код и входим
-async function linkLogin(link) {
-  let token = null, type = 'magiclink'
-  try { const u = new URL(link.trim()); token = u.searchParams.get('token') || u.searchParams.get('token_hash'); type = u.searchParams.get('type') || type } catch (e) {}
-  if (!token) { mailSent = '⚠️ Это не похоже на ссылку из письма — скопируйте её целиком'; return render() }
-  rememberForMerge()
-  const { data, error } = await db.auth.verifyOtp({ token_hash: token, type })
-  if (error || !data.session) { mailSent = '⚠️ Ссылка уже использована. Нажмите «Sign in» в письме обычным нажатием — войдёте в Safari, задайте там пароль и войдите здесь почтой и паролем'; const y = window.scrollY; render(); window.scrollTo(0, y); return }
-  mailSent = '✅ Вы вошли. Задайте пароль ниже — тогда в следующий раз хватит почты и пароля.'
-  me = data.session.user; await mergeAfterLogin(); await load()
+async function setPassword(password) {
+  const { error } = await db.auth.updateUser({ password })
+  if (!error) recovering = false
+  mailSent = error ? authMsg(error.message) : '✅ Пароль сохранён. Входите с ним на любом устройстве.'
+  const y = window.scrollY; render(); window.scrollTo(0, y)
 }
 async function logout() {
   await db.auth.signOut(); me = null; favs = []; places = []; mailSent = ''
   render(); ensureUser()
 }
-db.auth.onAuthStateChange((ev, session) => { if (ev === 'SIGNED_IN' && session && me && session.user.id !== me.id) { me = session.user; mergeAfterLogin().then(load) } })
+db.auth.onAuthStateChange((ev, session) => {
+  if (ev === 'PASSWORD_RECOVERY' && session) { recovering = true; me = session.user; mailSent = ''; setTimeout(() => { go('mine'); load() }, 0); return } if (ev === 'SIGNED_IN' && session && me && session.user.id !== me.id) { me = session.user; mergeAfterLogin().then(load) } })
 document.addEventListener('visibilitychange', () => { if (!document.hidden && me) load() })
 
 document.addEventListener('wheel', e => {
