@@ -2628,6 +2628,8 @@ async function addPlace(fd) {
 let me = null, mailSent = ''
 async function ensureUser() {
   let { data:{ session } } = await db.auth.getSession()
+  // вход мог устареть (например, гостя удалили) — тогда начинаем заново
+  if (session) { const u = await db.auth.getUser(); if (u.error && !/fetch|network/i.test(u.error.message)) { await db.auth.signOut({ scope:'local' }); session = null } }
   if (!session) {
     const r = await db.auth.signInAnonymously()
     if (r.error) { cloudOk = false; render(); return }
