@@ -2454,7 +2454,9 @@ function renderMine() {
         <input name="email" type="email" required placeholder="Почта" autocomplete="email">
         <input name="password" type="password" minlength="6" placeholder="Пароль (не короче 6 символов)" autocomplete="current-password">
         <div class="two"><button type="submit" value="in">Войти</button><button type="submit" value="up" class="ghost">Создать вход</button></div>
-        <button type="button" class="linkbtn" data-magic="1">Забыли пароль или без пароля — прислать ссылку на почту</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form>`}
+        <button type="button" class="linkbtn" data-magic="1">Забыли пароль или без пароля — прислать ссылку на почту</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form>
+        <form class="add sync" id="linkForm"><p><b>Гайд открыт значком с экрана телефона?</b> Ссылка из письма откроется в Safari, поэтому войдите так: в письме <b>удержите палец на кнопке «Sign in»</b> → «Скопировать ссылку» → вернитесь сюда и вставьте её в поле.</p>
+        <input name="link" placeholder="Вставьте ссылку из письма" autocomplete="off"><button type="submit">Войти по ссылке</button></form>`}
     <h4>Добавить своё место</h4>
     <form class="add" id="addPlace">
       <input name="title" placeholder="Название — например, «Варунг у Комана»" required maxlength="120">
@@ -2564,6 +2566,7 @@ document.addEventListener('change', e => {
 document.addEventListener('submit', e => {
   if (e.target.id === 'addPlace') { e.preventDefault(); addPlace(new FormData(e.target)) }
   if (e.target.id === 'pwForm') { e.preventDefault(); const fd = new FormData(e.target); passwordLogin(fd.get('email').trim(), fd.get('password'), e.submitter && e.submitter.value === 'up') }
+  if (e.target.id === 'linkForm') { e.preventDefault(); linkLogin(new FormData(e.target).get('link') || '') }
   if (e.target.id === 'setPw') { e.preventDefault(); setPassword(new FormData(e.target).get('password')) }
 })
 document.getElementById('searchForm').onsubmit = e => { e.preventDefault(); query = document.getElementById('q').value.trim(); render() }
@@ -2679,6 +2682,17 @@ async function setPassword(password) {
   const { error } = await db.auth.updateUser({ password })
   mailSent = error ? authMsg(error.message) : '✅ Пароль сохранён. Теперь в приложении на экране телефона войдите почтой и этим паролем.'
   const y = window.scrollY; render(); window.scrollTo(0, y)
+}
+// Вход по ссылке, вставленной вручную (для значка на экране iPhone): достаём из неё одноразовый код и входим
+async function linkLogin(link) {
+  let token = null, type = 'magiclink'
+  try { const u = new URL(link.trim()); token = u.searchParams.get('token') || u.searchParams.get('token_hash'); type = u.searchParams.get('type') || type } catch (e) {}
+  if (!token) { mailSent = '⚠️ Это не похоже на ссылку из письма — скопируйте её целиком'; return render() }
+  rememberForMerge()
+  const { data, error } = await db.auth.verifyOtp({ token_hash: token, type })
+  if (error || !data.session) { mailSent = '⚠️ Ссылка устарела или уже использована — нажмите «прислать ссылку на почту» ещё раз'; const y = window.scrollY; render(); window.scrollTo(0, y); return }
+  mailSent = '✅ Вы вошли. Задайте пароль ниже — тогда в следующий раз хватит почты и пароля.'
+  me = data.session.user; await mergeAfterLogin(); await load()
 }
 async function logout() {
   await db.auth.signOut(); me = null; favs = []; places = []; mailSent = ''
