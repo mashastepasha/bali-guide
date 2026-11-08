@@ -394,6 +394,10 @@
   form.add .two { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   form.add button { font-size:15px; padding:11px; border:0; border-radius:9px; background:var(--coral); color:#fff;
          cursor:pointer; font-family:inherit; font-weight:600; }
+  .sync p { margin:0; font-size:14px; color:var(--muted); }
+  .sync.ok { background:#E6F2DC; color:#2E5A16; border-radius:12px; padding:11px 12px; font-size:14px; margin-bottom:8px; }
+  .sync-msg { font-size:13px; font-weight:600; color:var(--ink); }
+  .linkbtn { border:0; background:none; color:var(--teal-2); text-decoration:underline; cursor:pointer; font:inherit; padding:0; }
   .status { font-size:12px; color:var(--muted); margin-top:20px; text-align:center; }
   h4 { margin:18px 0 8px; font-size:16px; }
   footer { color:var(--muted); font-size:12px; text-align:center; padding:0 16px 30px; }
@@ -592,10 +596,9 @@ document.head.append(Object.assign(document.createElement('style'), { textConten
 
 <script>
 // ── Облако ───────────────────────────────────────────────────
-const SUPABASE_URL = 'https://vniwfgjhooekrhybniae.supabase.co'
-const SUPABASE_KEY = 'sb_publishable_mx_fjDkl0GAdel1mXZLZEg_zkC3qA0l'
-const APP = 'bali-gid-rme8'
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+const SUPABASE_URL = 'https://vpnlzraqzdnzzudzmqua.supabase.co'
+const SUPABASE_KEY = 'sb_publishable_8u_fdPeNGcmQVlpA6iaI9g_XLX9AYGu'
+const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { flowType:'implicit', detectSessionInUrl:true, persistSession:true } })
 
 // ── Содержимое ───────────────────────────────────────────────
 // p(название, район, часы, цена, [особенности])
@@ -2433,11 +2436,16 @@ function renderMine() {
         <button class="x" data-del="${a.row.id}" title="Убрать из списка">×</button></li>`
   return `<h2>⭐ Мой список</h2>
     ${all.length ? `<div class="progress"><div class="bar"><i style="width:${pct}%"></i></div><span>Побывали: ${done.length} из ${all.length}</span></div>
-    <p class="lead">Побывали в месте — нажмите на кружок слева: оно зачеркнётся и переедет в «Уже побывали». Нажмёте ещё раз — вернётся обратно. Список хранится в облаке и виден с телефона.</p>
+    <p class="lead">Побывали в месте — нажмите на кружок слева: оно зачеркнётся и переедет в «Уже побывали». Нажмёте ещё раз — вернётся обратно. Список личный — его видите только вы.</p>
     <h4>🗺️ Хочу побывать · ${todo.length}</h4>
     ${todo.length ? `<ul class="mine">${todo.map(row).join('')}</ul>` : `<div class="empty">Везде побывали! 🎉 Отметьте ☆ новые места в разделах</div><br>`}
     ${done.length ? `<h4>✅ Уже побывали · ${done.length}</h4><ul class="mine">${done.map(row).join('')}</ul>` : ''}`
     : `<p class="lead">Здесь появятся места, отмеченные ☆, и ваши собственные находки.</p><div class="empty">Отметьте ☆ любое место в разделах — оно появится здесь</div><br>`}
+    <h4>📱 Мой список на всех устройствах</h4>
+    ${me && !me.is_anonymous
+      ? `<div class="sync ok">✅ Вы вошли как <b>${esc(me.email || '')}</b> — список одинаковый везде, где вы вошли с этой почтой. <button class="linkbtn" data-logout="1">Выйти</button></div>`
+      : `<form class="add sync" id="syncForm"><p>Сейчас список хранится только на этом устройстве. Укажите почту — придёт письмо со ссылкой для входа. Откройте её <b>на этом же устройстве</b>, и список станет доступен везде, где вы войдёте с этой почтой. Пароль не нужен.</p>
+        <input name="email" type="email" required placeholder="Ваша почта" autocomplete="email"><button type="submit">Получить ссылку для входа</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form>`}
     <h4>Добавить своё место</h4>
     <form class="add" id="addPlace">
       <input name="title" placeholder="Название — например, «Варунг у Комана»" required maxlength="120">
@@ -2448,7 +2456,7 @@ function renderMine() {
       <textarea name="note" rows="2" placeholder="Заметка: цена, время, чем понравилось" maxlength="300"></textarea>
       <button type="submit">Сохранить</button>
     </form>
-    <div class="status">${cloudOk === false ? '⚠️ Облако недоступно — проверьте интернет' : cloudOk ? '☁️ Сохраняется в облаке' : 'Подключаюсь к облаку…'}</div>`
+    <div class="status">${cloudOk === false ? '⚠️ Облако недоступно — проверьте интернет' : cloudOk ? '☁️ Сохраняется в вашем личном облаке' : 'Подключаюсь к облаку…'}</div>`
 }
 
 function renderPage(id) {
@@ -2508,6 +2516,7 @@ window.addEventListener('popstate', e => {
 
 // ── Нажатия ──────────────────────────────────────────────────
 document.addEventListener('click', e => {
+  if (e.target.closest('[data-logout]')) return logout()
   const vb = e.target.closest('button[data-visit]'); if (vb) return toggleVisited(vb.dataset.visit)
   const ar = e.target.closest('[data-arr]'); if (ar) { const r = ar.parentElement.querySelector('.row, .subnav'); return r.scrollBy({ left: ar.dataset.arr * r.clientWidth * .7, behavior:'smooth' }) }
   const bk = e.target.closest('[data-back]'); if (bk) return history.state && history.state.d > 0 ? history.back() : go('home')
@@ -2544,6 +2553,7 @@ document.addEventListener('change', e => {
 })
 document.addEventListener('submit', e => {
   if (e.target.id === 'addPlace') { e.preventDefault(); addPlace(new FormData(e.target)) }
+  if (e.target.id === 'syncForm') { e.preventDefault(); const em = new FormData(e.target).get('email').trim(); if (em) sendLoginLink(em) }
 })
 document.getElementById('searchForm').onsubmit = e => { e.preventDefault(); query = document.getElementById('q').value.trim(); render() }
 document.addEventListener('input', e => {
@@ -2555,7 +2565,8 @@ document.getElementById('q').oninput = e => { query = e.target.value.trim(); ren
 
 // ── Облако: чтение и запись ──────────────────────────────────
 async function load() {
-  const { data, error } = await db.from('entries').select('*').eq('app_slug', APP)
+  if (!me) return
+  const { data, error } = await db.from('entries').select('*')
     .in('entity_type', ['fav', 'place']).order('created_at', { ascending:true })
   if (error) { cloudOk = false; render(); return }
   cloudOk = true
@@ -2574,7 +2585,7 @@ async function toggleFav(k) {
     const it = sec.items.find(i => keyOf(sec, i) === k)
     const data = { key:k, title:it.title, section:sec.name, icon:sec.icon, area:it.area, visited:false }
     favs.push({ id:'tmp', data }); render()
-    await db.from('entries').insert({ app_slug:APP, entity_type:'fav', data })
+    await db.from('entries').insert({ entity_type:'fav', data })
   }
   load()
 }
@@ -2597,13 +2608,47 @@ async function removeRow(id) {
 async function addPlace(fd) {
   const data = { title:fd.get('title').trim(), section:fd.get('section'), area:fd.get('area').trim(), note:fd.get('note').trim(), visited:false }
   if (!data.title) return
-  await db.from('entries').insert({ app_slug:APP, entity_type:'place', data })
+  await db.from('entries').insert({ entity_type:'place', data })
   load()
 }
 
-db.channel('live-' + APP)
-  .on('postgres_changes', { event:'*', schema:'public', table:'entries', filter:`app_slug=eq.${APP}` }, load)
-  .subscribe()
+// Личный список: у каждого устройства своё невидимое место в облаке (анонимный вход, без регистрации).
+// Вход по почте — чтобы один список был на всех устройствах; список с этого устройства при входе не теряется.
+let me = null, mailSent = ''
+async function ensureUser() {
+  let { data:{ session } } = await db.auth.getSession()
+  if (!session) {
+    const r = await db.auth.signInAnonymously()
+    if (r.error) { cloudOk = false; render(); return }
+    session = r.data.session
+  }
+  me = session.user
+  await mergeAfterLogin()
+  load()
+}
+// Перед входом по почте запоминаем список этого устройства, после входа — добавляем недостающее в общий список
+async function mergeAfterLogin() {
+  let saved = null
+  try { saved = JSON.parse(localStorage.getItem('bali-merge') || 'null') } catch (e) {}
+  if (!saved || !me || me.is_anonymous) return
+  const { data } = await db.from('entries').select('entity_type,data')
+  const have = new Set((data || []).map(r => r.entity_type + ':' + (r.data.key || r.data.title)))
+  const add = saved.filter(r => !have.has(r.entity_type + ':' + (r.data.key || r.data.title)))
+  if (add.length) await db.from('entries').insert(add.map(r => ({ entity_type:r.entity_type, data:r.data })))
+  try { localStorage.removeItem('bali-merge') } catch (e) {}
+}
+async function sendLoginLink(email) {
+  try { localStorage.setItem('bali-merge', JSON.stringify([...favs, ...places].map(r => ({ entity_type: favs.includes(r) ? 'fav' : 'place', data:r.data })))) } catch (e) {}
+  const { error } = await db.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + location.pathname } })
+  mailSent = error ? (/rate|limit|seconds/i.test(error.message) ? '⚠️ Слишком много писем — попробуйте через час' : '⚠️ Не получилось отправить письмо: ' + error.message) : '✉️ Письмо отправлено на ' + email + '. Откройте ссылку из него на этом же устройстве.'
+  const y = window.scrollY; render(); window.scrollTo(0, y)
+}
+async function logout() {
+  await db.auth.signOut(); me = null; favs = []; places = []; mailSent = ''
+  render(); ensureUser()
+}
+db.auth.onAuthStateChange((ev, session) => { if (ev === 'SIGNED_IN' && session && me && session.user.id !== me.id) { me = session.user; mergeAfterLogin().then(load) } })
+document.addEventListener('visibilitychange', () => { if (!document.hidden && me) load() })
 
 document.addEventListener('wheel', e => {
   const r = e.target.closest('.tabs .row, .subnav'); if (!r || Math.abs(e.deltaY) <= Math.abs(e.deltaX)) return
@@ -2782,7 +2827,7 @@ const start = location.hash.slice(1)
 if (start && groupOf(start)) { const g = groupOf(start); tab = g.id; sub = g.subs ? (g.subs.includes(start) ? start : g.subs[0]) : '' }
 history.replaceState({ tab, sub, d:0 }, '')
 render()
-load()
+ensureUser()
 cubInit()
 if (cubOff()) document.querySelectorAll('.cubtoggle').forEach(b => b.hidden = false)
 </script>
