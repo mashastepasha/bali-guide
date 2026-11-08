@@ -397,6 +397,9 @@
   .sync p { margin:0; font-size:14px; color:var(--muted); }
   .sync.ok { background:#E6F2DC; color:#2E5A16; border-radius:12px; padding:11px 12px; font-size:14px; margin-bottom:8px; }
   .sync-msg { font-size:13px; font-weight:600; color:var(--ink); }
+  form.add .ghost { background:#fff; color:var(--coral); border:2px solid var(--coral); }
+  .pwset { margin:0 0 10px; }
+  .pwset summary { cursor:pointer; font-size:14px; font-weight:600; color:var(--teal-2); padding:4px 0 8px; }
   .linkbtn { border:0; background:none; color:var(--teal-2); text-decoration:underline; cursor:pointer; font:inherit; padding:0; }
   .status { font-size:12px; color:var(--muted); margin-top:20px; text-align:center; }
   h4 { margin:18px 0 8px; font-size:16px; }
@@ -2443,9 +2446,15 @@ function renderMine() {
     : `<p class="lead">Здесь появятся места, отмеченные ☆, и ваши собственные находки.</p><div class="empty">Отметьте ☆ любое место в разделах — оно появится здесь</div><br>`}
     <h4>📱 Мой список на всех устройствах</h4>
     ${me && !me.is_anonymous
-      ? `<div class="sync ok">✅ Вы вошли как <b>${esc(me.email || '')}</b> — список одинаковый везде, где вы вошли с этой почтой. <button class="linkbtn" data-logout="1">Выйти</button></div>`
-      : `<form class="add sync" id="syncForm"><p>Сейчас список хранится только на этом устройстве. Укажите почту — придёт письмо со ссылкой для входа. Откройте её <b>на этом же устройстве</b>, и список станет доступен везде, где вы войдёте с этой почтой. Пароль не нужен.</p>
-        <input name="email" type="email" required placeholder="Ваша почта" autocomplete="email"><button type="submit">Получить ссылку для входа</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form>`}
+      ? `<div class="sync ok">✅ Вы вошли как <b>${esc(me.email || '')}</b> — список одинаковый везде, где вы вошли с этой почтой. <button class="linkbtn" data-logout="1">Выйти</button></div>
+        <details class="pwset"${mailSent ? ' open' : ''}><summary>🔑 Задать пароль — чтобы входить в приложении на экране телефона</summary>
+          <form class="add sync" id="setPw"><p>Значок гайда на экране «Домой» открывается как отдельное приложение со своей памятью — войдите в нём один раз почтой и паролем.</p>
+          <input name="password" type="password" required minlength="6" placeholder="Новый пароль, не короче 6 символов" autocomplete="new-password"><button type="submit">Сохранить пароль</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form></details>`
+      : `<form class="add sync" id="pwForm"><p>Сейчас список хранится только на этом устройстве. Войдите — и он будет одинаковым на всех устройствах и в приложении на экране телефона.</p>
+        <input name="email" type="email" required placeholder="Почта" autocomplete="email">
+        <input name="password" type="password" minlength="6" placeholder="Пароль (не короче 6 символов)" autocomplete="current-password">
+        <div class="two"><button type="submit" value="in">Войти</button><button type="submit" value="up" class="ghost">Создать вход</button></div>
+        <button type="button" class="linkbtn" data-magic="1">Забыли пароль или без пароля — прислать ссылку на почту</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form>`}
     <h4>Добавить своё место</h4>
     <form class="add" id="addPlace">
       <input name="title" placeholder="Название — например, «Варунг у Комана»" required maxlength="120">
@@ -2517,6 +2526,7 @@ window.addEventListener('popstate', e => {
 // ── Нажатия ──────────────────────────────────────────────────
 document.addEventListener('click', e => {
   if (e.target.closest('[data-logout]')) return logout()
+  if (e.target.closest('[data-magic]')) { const em = (document.querySelector('#pwForm [name=email]') || {}).value; if (!em || !/@/.test(em)) { mailSent = '⚠️ Сначала впишите почту'; return render() } return sendLoginLink(em.trim()) }
   const vb = e.target.closest('button[data-visit]'); if (vb) return toggleVisited(vb.dataset.visit)
   const ar = e.target.closest('[data-arr]'); if (ar) { const r = ar.parentElement.querySelector('.row, .subnav'); return r.scrollBy({ left: ar.dataset.arr * r.clientWidth * .7, behavior:'smooth' }) }
   const bk = e.target.closest('[data-back]'); if (bk) return history.state && history.state.d > 0 ? history.back() : go('home')
@@ -2553,7 +2563,8 @@ document.addEventListener('change', e => {
 })
 document.addEventListener('submit', e => {
   if (e.target.id === 'addPlace') { e.preventDefault(); addPlace(new FormData(e.target)) }
-  if (e.target.id === 'syncForm') { e.preventDefault(); const em = new FormData(e.target).get('email').trim(); if (em) sendLoginLink(em) }
+  if (e.target.id === 'pwForm') { e.preventDefault(); const fd = new FormData(e.target); passwordLogin(fd.get('email').trim(), fd.get('password'), e.submitter && e.submitter.value === 'up') }
+  if (e.target.id === 'setPw') { e.preventDefault(); setPassword(new FormData(e.target).get('password')) }
 })
 document.getElementById('searchForm').onsubmit = e => { e.preventDefault(); query = document.getElementById('q').value.trim(); render() }
 document.addEventListener('input', e => {
@@ -2585,7 +2596,7 @@ async function toggleFav(k) {
     const it = sec.items.find(i => keyOf(sec, i) === k)
     const data = { key:k, title:it.title, section:sec.name, icon:sec.icon, area:it.area, visited:false }
     favs.push({ id:'tmp', data }); render()
-    await db.from('entries').insert({ entity_type:'fav', data })
+    await db.from('entries').upsert({ entity_type:'fav', data }, { onConflict:'owner,entity_type,item_key', ignoreDuplicates:true })
   }
   load()
 }
@@ -2628,19 +2639,43 @@ async function ensureUser() {
 }
 // Перед входом по почте запоминаем список этого устройства, после входа — добавляем недостающее в общий список
 async function mergeAfterLogin() {
+  if (!me || me.is_anonymous) return
   let saved = null
-  try { saved = JSON.parse(localStorage.getItem('bali-merge') || 'null') } catch (e) {}
-  if (!saved || !me || me.is_anonymous) return
+  // забираем сохранённый список сразу — чтобы перенос не сработал дважды
+  try { saved = JSON.parse(localStorage.getItem('bali-merge') || 'null'); localStorage.removeItem('bali-merge') } catch (e) {}
+  if (!saved) return
   const { data } = await db.from('entries').select('entity_type,data')
   const have = new Set((data || []).map(r => r.entity_type + ':' + (r.data.key || r.data.title)))
   const add = saved.filter(r => !have.has(r.entity_type + ':' + (r.data.key || r.data.title)))
-  if (add.length) await db.from('entries').insert(add.map(r => ({ entity_type:r.entity_type, data:r.data })))
-  try { localStorage.removeItem('bali-merge') } catch (e) {}
+  // облако само не пустит дубли (одно место — одна запись)
+  if (add.length) await db.from('entries').upsert(add.map(r => ({ entity_type:r.entity_type, data:r.data })), { onConflict:'owner,entity_type,item_key', ignoreDuplicates:true })
 }
 async function sendLoginLink(email) {
-  try { localStorage.setItem('bali-merge', JSON.stringify([...favs, ...places].map(r => ({ entity_type: favs.includes(r) ? 'fav' : 'place', data:r.data })))) } catch (e) {}
+  rememberForMerge()
   const { error } = await db.auth.signInWithOtp({ email, options:{ emailRedirectTo: location.origin + location.pathname } })
   mailSent = error ? (/rate|limit|seconds/i.test(error.message) ? '⚠️ Слишком много писем — попробуйте через час' : '⚠️ Не получилось отправить письмо: ' + error.message) : '✉️ Письмо отправлено на ' + email + '. Откройте ссылку из него на этом же устройстве.'
+  const y = window.scrollY; render(); window.scrollTo(0, y)
+}
+// Запоминаем список этого устройства, чтобы после входа добавить его в общий
+function rememberForMerge() {
+  try { localStorage.setItem('bali-merge', JSON.stringify([...favs, ...places].map(r => ({ entity_type: favs.includes(r) ? 'fav' : 'place', data:r.data })))) } catch (e) {}
+}
+const authMsg = m => /invalid login/i.test(m) ? '⚠️ Неверная почта или пароль. Если вы входили по ссылке из письма и ещё не задавали пароль — войдите по ссылке и задайте пароль здесь же.'
+  : /already registered|already been registered/i.test(m) ? '⚠️ Эта почта уже зарегистрирована — нажмите «Войти» (или «прислать ссылку», если пароля нет)'
+  : /rate|limit|seconds/i.test(m) ? '⚠️ Слишком много попыток — подождите немного'
+  : /least 6|weak|short/i.test(m) ? '⚠️ Пароль слишком короткий — нужно не меньше 6 символов' : '⚠️ ' + m
+async function passwordLogin(email, password, create) {
+  if (!password || password.length < 6) { mailSent = '⚠️ Введите пароль не короче 6 символов'; return render() }
+  rememberForMerge()
+  const r = create ? await db.auth.signUp({ email, password }) : await db.auth.signInWithPassword({ email, password })
+  if (r.error) { mailSent = authMsg(r.error.message); const y = window.scrollY; render(); window.scrollTo(0, y); return }
+  if (create && !r.data.session) { mailSent = '✉️ Подтвердите почту по ссылке из письма'; return render() }
+  mailSent = ''
+  me = r.data.session.user; await mergeAfterLogin(); await load()
+}
+async function setPassword(password) {
+  const { error } = await db.auth.updateUser({ password })
+  mailSent = error ? authMsg(error.message) : '✅ Пароль сохранён. Теперь в приложении на экране телефона войдите почтой и этим паролем.'
   const y = window.scrollY; render(); window.scrollTo(0, y)
 }
 async function logout() {
