@@ -31,6 +31,14 @@
                 color:#fff; padding:30px 0 24px; text-shadow:0 1px 8px rgba(0,0,0,.35); }
   .hero h1 { margin:0; font-size:32px; letter-spacing:.2px; }
   .logo { display:flex; align-items:center; gap:12px; }
+  header.hero .wrap { position:relative; }
+  .acct { position:absolute; top:-18px; right:16px; z-index:2; border:0; border-radius:999px; padding:6px 12px; font:600 14px -apple-system,system-ui,sans-serif;
+          background:rgba(255,255,255,.92); color:var(--ink); text-shadow:none; cursor:pointer; box-shadow:0 2px 8px rgba(0,0,0,.25);
+          max-width:42%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .acct.in { background:#E6F2DC; color:#2E5A16; }
+  .toast { position:fixed; left:50%; bottom:24px; transform:translate(-50%, 20px); z-index:3000; background:#2B1D14; color:#fff; padding:12px 16px;
+           border-radius:14px; font-size:15px; max-width:calc(100% - 32px); box-shadow:0 8px 24px rgba(0,0,0,.3); opacity:0; transition:opacity .3s, transform .3s; text-align:center; }
+  .toast.show { opacity:1; transform:translate(-50%, 0); }
   .logo-cub { flex:none; width:74px; height:76px; }
   .logo-cub svg, .hopper svg { width:100%; height:100%; display:block; overflow:visible; }
   .logo-txt { display:flex; flex-direction:column; line-height:1.05; }
@@ -583,6 +591,7 @@ document.head.append(Object.assign(document.createElement('style'), { textConten
 
 <header class="hero">
   <div class="wrap">
+    <button class="acct" id="acct" data-acct="1">👤 Войти</button>
     <h1 class="logo"><span class="logo-cub" aria-hidden="true" title="Балийский тигрус"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 124"><defs><filter id="cubStkH" x="-20%" y="-20%" width="140%" height="140%"><feMorphology in="SourceAlpha" operator="dilate" radius="2.4" result="d"/><feGaussianBlur in="d" stdDeviation="1.4" result="b"/><feOffset in="b" dy="1.2" result="o"/><feFlood flood-color="#000" flood-opacity=".14"/><feComposite in2="o" operator="in" result="sh"/><feFlood flood-color="#fff"/><feComposite in2="d" operator="in" result="w"/><feMerge><feMergeNode in="sh"/><feMergeNode in="w"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><g filter="url(#cubStkH)" stroke="#3B2416" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><g class="cub-tail"><path d="M84 108 C100 110 108 100 106 86 C105 80 103 76 107 71" fill="none" stroke="#E58B3A" stroke-width="7.5"/><path d="M91.4 104.8 Q91.8 108.3 94.6 110.4 Q94.2 106.9 91.4 104.8Z" fill="#3B2416" stroke="none"/><path d="M99.4 98.8 Q101.9 101.5 105.6 101.6 Q103.1 98.9 99.4 98.8Z" fill="#3B2416" stroke="none"/><path d="M102.6 89.6 Q105.7 90.9 108.8 89.4 Q105.7 88.1 102.6 89.6Z" fill="#3B2416" stroke="none"/><path d="M104.2 74.6 C103.4 70.4 105.4 66.8 109 67.2 C111.6 67.6 112 71.6 109.6 75.4Z" fill="#3B2416" stroke="none"/></g><g class="tail-hang"><path d="M56 112 C54 126 64 132 62 142 C61 148 54 150 52 145" fill="none" stroke="#E58B3A" stroke-width="6"/><path d="M54.2 121.6 Q57.9 121.7 60.8 119.4 Q57.1 119.3 54.2 121.6Z" fill="#3B2416" stroke="none"/><path d="M59.2 131.4 Q62.2 133.3 65.6 132.6 Q62.6 130.7 59.2 131.4Z" fill="#3B2416" stroke="none"/><circle cx="52.4" cy="145.2" r="3.4" fill="#3B2416" stroke="none"/></g><g class="prop-ring-b"><path d="M25.5 98 A34.5 10.5 0 0 1 94.5 98" fill="none" stroke="#3B2412" stroke-width="12.5"/><path d="M25.5 98 A34.5 10.5 0 0 1 94.5 98" fill="none" stroke="#fff" stroke-width="8.5"/><path d="M25.5 98 A34.5 10.5 0 0 1 94.5 98" fill="none" stroke="#E53935" stroke-width="8.5" stroke-dasharray="11 10" stroke-linecap="butt"/></g><g class="prop-board"><ellipse cx="60" cy="121" rx="55" ry="6.5" fill="#29B6C6"/><path d="M12 121 H108" stroke="#fff" stroke-width="2"/><path d="M28 121 H40 M80 121 H92" stroke="#F4D35E" stroke-width="2.4"/></g><g class="cub-torso"><path d="M38 80 C30 92 31 114 45 120 H75 C89 114 90 92 82 80 C76 75 44 75 38 80Z" fill="#E58B3A" stroke="none"/><path d="M60 80 C69 80 74 90 73.6 101 C73.2 112 67.6 119 60 119 C52.4 119 46.8 112 46.4 101 C46 90 51 80 60 80Z" fill="#FFFFFF" stroke="none"/><path d="M32.6 89.4 Q37.3 93.4 43.4 92.6 Q38.0 90.9 32.6 89.4Z" fill="#3B2416" stroke="none"/><path d="M87.4 89.4 Q82.0 90.9 76.6 92.6 Q82.7 93.4 87.4 89.4Z" fill="#3B2416" stroke="none"/><path d="M31.4 98.0 Q36.5 101.8 42.6 100.2 Q37.0 99.1 31.4 98.0Z" fill="#3B2416" stroke="none"/><path d="M88.6 98.0 Q83.0 99.1 77.4 100.2 Q83.5 101.8 88.6 98.0Z" fill="#3B2416" stroke="none"/><path d="M32.4 106.6 Q37.0 109.9 42.4 108.2 Q37.4 107.3 32.4 106.6Z" fill="#3B2416" stroke="none"/><path d="M87.6 106.6 Q82.6 107.3 77.6 108.2 Q83.0 109.9 87.6 106.6Z" fill="#3B2416" stroke="none"/><path d="M36.0 114.6 Q39.6 116.9 43.6 115.4 Q39.8 114.7 36.0 114.6Z" fill="#3B2416" stroke="none"/><path d="M84.0 114.6 Q80.2 114.7 76.4 115.4 Q80.4 116.9 84.0 114.6Z" fill="#3B2416" stroke="none"/></g><g class="prop-ring-f"><path d="M25.5 98 A34.5 10.5 0 0 0 94.5 98" fill="none" stroke="#3B2412" stroke-width="12.5"/><path d="M25.5 98 A34.5 10.5 0 0 0 94.5 98" fill="none" stroke="#fff" stroke-width="8.5"/><path d="M25.5 98 A34.5 10.5 0 0 0 94.5 98" fill="none" stroke="#E53935" stroke-width="8.5" stroke-dasharray="11 10" stroke-linecap="butt"/></g><g class="prop-ring-f2"><path d="M33 103.5 Q37 106 41 107" fill="none" stroke="#fff" stroke-width="1.6" opacity=".8"/></g><g class="arm-l"><path d="M41 83 C35 90 37 101 45 104.5 C50 106 53.5 101.6 51.8 97 C50.2 93 46.4 89 46.2 84Z" fill="#E58B3A" stroke="none"/><path d="M37.6 91.6 Q40.6 94.3 44.6 93.4 Q41.2 92.2 37.6 91.6Z" fill="#3B2416" stroke="none"/><path d="M46 104.4 Q46.6 102.4 46.2 100.8 M49.2 104.8 Q49.8 102.8 49.4 101.2" fill="none" stroke="#FFFFFF" stroke-width="1.5"/></g><g class="arm-r"><path d="M79.0 83 C85.0 90 83.0 101 75.0 104.5 C70.0 106 66.5 101.6 68.2 97 C69.8 93 73.6 89 73.8 84Z" fill="#E58B3A" stroke="none"/><path d="M82.4 91.6 Q78.8 92.2 75.4 93.4 Q79.4 94.3 82.4 91.6Z" fill="#3B2416" stroke="none"/><path d="M74.0 104.4 Q73.4 102.4 73.8 100.8 M70.8 104.8 Q70.2 102.8 70.6 101.2" fill="none" stroke="#FFFFFF" stroke-width="1.5"/></g><g class="paw-l"><ellipse cx="42" cy="114.6" rx="11.6" ry="7.8" fill="#E58B3A" stroke="none"/><path d="M38.4 121.2 Q37.8 118.2 38.6 115.6 M45.6 121.2 Q46.2 118.2 45.4 115.6" fill="none" stroke="#FFFFFF" stroke-width="1.6"/></g><g class="paw-r"><ellipse cx="78" cy="114.6" rx="11.6" ry="7.8" fill="#E58B3A" stroke="none"/><path d="M74.4 121.2 Q73.8 118.2 74.6 115.6 M81.6 121.2 Q82.2 118.2 81.4 115.6" fill="none" stroke="#FFFFFF" stroke-width="1.6"/></g><g class="cub-head"><g class="ear-l"><circle cx="28.6" cy="26.4" r="12" fill="#3B2416" stroke="none"/><circle cx="28.6" cy="27.2" r="9.8" fill="#E58B3A" stroke="none"/><ellipse cx="30.0" cy="29.4" rx="5.6" ry="5" fill="#FFFFFF" stroke="none"/><path d="M26.0 31.4 L27.6 28.6 L29.200000000000003 31.6 L31.0 28.8 L32.800000000000004 31.8" fill="none" stroke="#E58B3A" stroke-width="1.2"/></g><g class="ear-r"><circle cx="91.4" cy="26.4" r="12" fill="#3B2416" stroke="none"/><circle cx="91.4" cy="27.2" r="9.8" fill="#E58B3A" stroke="none"/><ellipse cx="90.0" cy="29.4" rx="5.6" ry="5" fill="#FFFFFF" stroke="none"/><path d="M94.0 31.4 L92.4 28.6 L90.80000000000001 31.6 L89.0 28.8 L87.2 31.8" fill="none" stroke="#E58B3A" stroke-width="1.2"/></g><path d="M60 21.5 C80 21.5 96 26 101 38 C104 46 104.6 54 103 61 C100.6 71 92.4 78.6 81.4 82.4 C74.6 84.6 66.6 85.4 60 85.4 C53.4 85.4 45.4 84.6 38.6 82.4 C27.6 78.6 19.4 71 17 61 C15.4 54 16 46 19 38 C24 26 40 21.5 60 21.5Z" fill="#E58B3A" stroke="none"/><path d="M60 55.6 C64 55.6 67.8 57.2 70.6 59.2 C75.4 59.8 80.4 61 82.4 64.6 C84.6 68.8 82.4 75.2 77.8 79.2 C72.8 83.4 66.4 85.2 60 85.2 C53.6 85.2 47.2 83.4 42.2 79.2 C37.6 75.2 35.4 68.8 37.6 64.6 C39.6 61 44.6 59.8 49.4 59.2 C52.2 57.2 56 55.6 60 55.6Z" fill="#FFFFFF" stroke="none"/><path d="M18.4 66 C20.6 72.4 25.6 77.4 32.6 80.4 C29.6 80.8 27 80.4 24.6 79.4 C26 81.2 27 82.2 28.6 83.2 C22 81 18 74.4 18.4 66Z" fill="#FFFFFF" stroke="none"/><path d="M101.6 66 C99.4 72.4 94.4 77.4 87.4 80.4 C90.4 80.8 93 80.4 95.4 79.4 C94 81.2 93 82.2 91.4 83.2 C98 81 102 74.4 101.6 66Z" fill="#FFFFFF" stroke="none"/><path d="M48.6 26.2 Q60.0 27.2 71.4 26.2 Q60.0 21.2 48.6 26.2Z" fill="#3B2416" stroke="none"/><path d="M47.0 32.2 Q60.0 33.1 73.0 32.2 Q60.0 26.9 47.0 32.2Z" fill="#3B2416" stroke="none"/><path d="M50.6 38.0 Q60.0 38.9 69.4 38.0 Q60.0 33.5 50.6 38.0Z" fill="#3B2416" stroke="none"/><path d="M55.8 43.4 Q60.0 44.4 64.2 43.4 Q60.0 40.4 55.8 43.4Z" fill="#3B2416" stroke="none"/><path d="M16.2 44.0 Q23.5 47.5 31.6 47.8 Q24.9 42.0 16.2 44.0Z" fill="#3B2416" stroke="none"/><path d="M103.8 44.0 Q95.1 42.0 88.4 47.8 Q96.5 47.5 103.8 44.0Z" fill="#3B2416" stroke="none"/><path d="M15.6 51.0 Q22.5 53.7 29.8 53.2 Q23.3 48.5 15.6 51.0Z" fill="#3B2416" stroke="none"/><path d="M104.4 51.0 Q96.7 48.5 90.2 53.2 Q97.5 53.7 104.4 51.0Z" fill="#3B2416" stroke="none"/><path d="M16.6 57.6 Q22.7 60.0 29.2 59.4 Q23.3 55.4 16.6 57.6Z" fill="#3B2416" stroke="none"/><path d="M103.4 57.6 Q96.7 55.4 90.8 59.4 Q97.3 60.0 103.4 57.6Z" fill="#3B2416" stroke="none"/><path d="M19.4 64.4 Q24.2 66.4 29.4 65.6 Q24.7 62.4 19.4 64.4Z" fill="#3B2416" stroke="none"/><path d="M100.6 64.4 Q95.3 62.4 90.6 65.6 Q95.8 66.4 100.6 64.4Z" fill="#3B2416" stroke="none"/><path d="M37.0 26.8 Q38.1 32.5 43.8 33.6 Q41.0 29.6 37.0 26.8Z" fill="#3B2416" stroke="none"/><path d="M83.0 26.8 Q79.0 29.6 76.2 33.6 Q81.9 32.5 83.0 26.8Z" fill="#3B2416" stroke="none"/><ellipse cx="43.6" cy="42.8" rx="5.4" ry="2.6" fill="#FFFFFF" stroke="none" transform="rotate(6 43.6 42.8)"/><ellipse cx="76.4" cy="42.8" rx="5.4" ry="2.6" fill="#FFFFFF" stroke="none" transform="rotate(-6 76.4 42.8)"/><g class="cub-eyes"><g class="eye-l"><ellipse cx="44.4" cy="51.2" rx="5.2" ry="5.6" fill="#FFFFFF" stroke="#3B2416" stroke-width="1.5"/><circle cx="45.6" cy="51.4" r="2.9" fill="#3B2416" stroke="none"/><circle cx="46.5" cy="50.3" r=".9" fill="#FFFFFF" stroke="none"/></g><g class="eye-r"><ellipse cx="75.6" cy="51.2" rx="5.2" ry="5.6" fill="#FFFFFF" stroke="#3B2416" stroke-width="1.5"/><circle cx="76.8" cy="51.4" r="2.9" fill="#3B2416" stroke="none"/><circle cx="77.7" cy="50.3" r=".9" fill="#FFFFFF" stroke="none"/></g></g><path class="wink-l" d="M39.2 52.6 Q44.4 47.6 49.6 52.6" fill="none" stroke="#3B2416" stroke-width="2.3"/><g class="brow-l"><path d="M37.8 39.6 Q43.6 39.1 49.4 39.2 Q43.5 36.1 37.8 39.6Z" fill="#3B2416" stroke="none"/></g><g class="brow-r"><path d="M82.2 39.6 Q76.5 36.1 70.6 39.2 Q76.4 39.1 82.2 39.6Z" fill="#3B2416" stroke="none"/></g><g class="eyes-silly" fill="none" stroke="#3B2416" stroke-width="2.4"><path d="M40.4 47.8 L48.4 51.2 L40.4 54.6"/><path d="M79.6 47.8 L71.6 51.2 L79.6 54.6"/></g><g class="tongue"><path d="M56 67 Q55.6 79.4 60 79.4 Q64.4 79.4 64 67Z" fill="#F28E9C" stroke="none"/><path d="M60 66.6 V73.4" stroke="#D86A7A" stroke-width="1.2"/></g><g class="eyes-shut" fill="none" stroke="#3B2416" stroke-width="2.3"><path d="M39.2 50.8 Q44.4 55.2 49.6 50.8"/><path d="M70.4 50.8 Q75.6 55.2 80.8 50.8"/></g><g class="mouth-shut"><path d="M58.4 68.6 Q60 72 61.6 68.6Z" fill="#F28E9C" stroke="none"/><path d="M60 64.8 V67 M60 67 Q56.8 70.2 53.4 68 M60 67 Q63.2 70.2 66.6 68" fill="none" stroke="#3B2416" stroke-width="1.8"/><path d="M54.4 68.6 L55.7 72.6 L57.2 69.4Z M62.8 69.4 L64.3 72.6 L65.6 68.6Z" fill="#FFFFFF" stroke="#3B2416" stroke-width=".9"/></g><g class="mouth-open"><path d="M52.4 66 Q60 64 67.6 66 Q66.8 76.4 60 77.2 Q53.2 76.4 52.4 66Z" fill="#B23A4B" stroke="none"/><ellipse cx="60" cy="73.6" rx="4.2" ry="2.6" fill="#F28E9C" stroke="none"/><path d="M54 65.8 L55.4 70 L56.8 65.6Z M63.2 65.6 L64.6 70 L66 65.8Z" fill="#FFFFFF" stroke="none"/></g><path d="M53.2 58.4 Q60 55.4 66.8 58.4 Q65.4 63.8 60 64.8 Q54.6 63.8 53.2 58.4Z" fill="#3B2416" stroke="none"/><ellipse cx="57.2" cy="58.4" rx="2.2" ry="1" fill="#FFFFFF" opacity=".35" stroke="none"/></g><g class="paw-up"><path d="M88 52 C87 44 89 34 95 30 C101 27 106 32 104 39 C103 45 99 50 96 54Z" fill="#E58B3A" stroke="none"/><circle cx="97.4" cy="33.6" r="6.4" fill="#E58B3A" stroke="none"/><path d="M89.8 45.6 Q93.1 47.9 96.8 46.4 Q93.3 45.7 89.8 45.6Z" fill="#3B2416" stroke="none"/><path d="M95.4 28.2 Q95 30.4 95.6 32.4 M99.4 28.2 Q99.8 30.4 99.2 32.4" fill="none" stroke="#FFFFFF" stroke-width="1.5"/></g><g class="prop-helmet"><path d="M23 45 C23 17 43 9 60 9 C77 9 97 17 97 45Z" fill="#E53935"/><path d="M23 45 H97" stroke-width="3"/><path d="M48 14 Q60 11 72 14 L70 22 Q60 19 50 22Z" fill="#fff" stroke="none" opacity=".75"/><path d="M27 46 L36 74 M93 46 L84 74" stroke-width="1.6"/></g><g class="prop-speed" stroke="#3B2412" stroke-width="2.2" opacity=".55"><path d="M-18 70 H0 M-22 86 H-2 M-14 102 H4"/></g><g class="prop-bino"><rect x="33" y="41" width="23" height="21" rx="6" fill="#3A3F47"/><rect x="64" y="41" width="23" height="21" rx="6" fill="#3A3F47"/><rect x="54" y="46" width="12" height="9" fill="#3A3F47"/><circle cx="44.5" cy="51.5" r="6" fill="#7FB3D5" stroke-width="1.6"/><circle cx="75.5" cy="51.5" r="6" fill="#7FB3D5" stroke-width="1.6"/></g><g class="prop-camera"><rect x="37" y="49" width="46" height="29" rx="5" fill="#3A3F47"/><rect x="43" y="44" width="13" height="7" rx="2" fill="#3A3F47"/><circle cx="60" cy="63.5" r="10" fill="#1E2328" stroke="#AEB6C2" stroke-width="2.4"/><circle cx="57" cy="60.5" r="3" fill="#fff" opacity=".6" stroke="none"/><rect x="72" y="53" width="7" height="4" rx="1" fill="#F4D35E" stroke="none"/></g><circle class="prop-flash" cx="76" cy="55" r="16" fill="#fff" stroke="none"/><g class="prop-bowl"><path d="M40 98 Q60 78 80 98Z" fill="#F6E7A8"/><circle cx="52" cy="92" r="2" fill="#E8752E" stroke="none"/><circle cx="63" cy="89" r="2" fill="#6BA539" stroke="none"/><circle cx="70" cy="94" r="2" fill="#E8752E" stroke="none"/><path d="M36 97 H84 Q82 115 60 116 Q38 115 36 97Z" fill="#C0392B"/><path d="M40 104 H80" stroke="#F4D35E" stroke-width="2"/><path d="M76 90 L100 72 M80 92 L102 76" stroke="#8D5524" stroke-width="2.2"/></g><g class="prop-cup"><g class="steam" fill="none" stroke="#9AA4B2" stroke-width="1.8"><path d="M87 72 Q84 67 87 62 Q90 57 87 52"/><path d="M95 72 Q92 67 95 62 Q98 57 95 52"/></g><path d="M81 76 H101 L99 95 Q91 99 83 95Z" fill="#fff"/><path d="M101 80 Q108 81 107 87 Q106 92 100 91" fill="none"/><ellipse cx="91" cy="76.5" rx="9.5" ry="2.6" fill="#6B3E1E"/></g><g class="prop-coco"><circle cx="92" cy="90" r="12" fill="#6BA539"/><ellipse cx="92" cy="81" rx="7" ry="2.6" fill="#F5F0DC"/><path d="M93 81 L101 62" stroke="#E8505B" stroke-width="2.6"/><path d="M82 68 L99 60 L91 74Z" fill="#F4D35E"/></g><g class="prop-pass"><rect x="78" y="68" width="21" height="28" rx="2.5" fill="#B71C1C"/><circle cx="88.5" cy="79" r="4.6" fill="none" stroke="#F4D35E" stroke-width="1.4"/><path d="M82 90 H95" stroke="#F4D35E" stroke-width="1.4"/></g></g></svg></span><span class="logo-txt"><span class="name">Bali<em>Guide</em></span><span class="for">для беларусиков</span></span></h1>
     <p>Въезд, законы, здоровье и транспорт для граждан Беларуси, море, еда, активности и поездки — с ценами и временем работы</p>
     <form class="search" id="searchForm">
@@ -2447,10 +2456,13 @@ function renderMine() {
     : `<p class="lead">Здесь появятся места, отмеченные ☆, и ваши собственные находки.</p><div class="empty">Отметьте ☆ любое место в разделах — оно появится здесь</div><br>`}
     <h4>📱 Мой список на всех устройствах</h4>
     ${me && !me.is_anonymous
-      ? `<div class="sync ok">✅ Вы вошли как <b>${esc(me.email || '')}</b> — этот список у вас везде, где вы вошли. <button class="linkbtn" data-logout="1">Выйти</button></div>
+      ? `<div class="sync ok">👋 Привет, <b>${esc(userName())}</b>! Вы вошли в свой аккаунт (${esc(me.email || '')}) — этот список у вас везде, где вы вошли. <button class="linkbtn" data-logout="1">Выйти</button></div>
+        <details class="pwset"><summary>✏️ ${me.user_metadata && me.user_metadata.name ? 'Изменить имя' : 'Указать имя для приветствия'}</summary>
+          <form class="add sync" id="setName"><input name="name" maxlength="40" required placeholder="Ваше имя" value="${esc((me.user_metadata && me.user_metadata.name) || '')}"><button type="submit">Сохранить имя</button></form></details>
         <details class="pwset"${recovering || mailSent ? ' open' : ''}><summary>🔑 ${recovering ? 'Придумайте новый пароль' : 'Сменить пароль'}</summary>
           <form class="add sync" id="setPw"><input name="password" type="password" required minlength="6" placeholder="Новый пароль, не короче 6 символов" autocomplete="new-password"><button type="submit">Сохранить пароль</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form></details>`
       : `<form class="add sync" id="pwForm"><p>Войдите — и ваш список будет на телефоне, компьютере и в значке на экране. <b>Впервые здесь?</b> Просто впишите почту и придумайте пароль — вход создастся сам.</p>
+        <input name="name" placeholder="Как вас зовут — для приветствия (можно не заполнять)" autocomplete="given-name" maxlength="40">
         <input name="email" type="email" required placeholder="Почта" autocomplete="email">
         <input name="password" type="password" required minlength="6" placeholder="Пароль (не короче 6 символов)" autocomplete="current-password">
         <button type="submit">Войти</button>
@@ -2489,6 +2501,7 @@ function subnav(g) {
 
 function render() {
   renderTabs()
+  renderAcct()
   if (query) { view.innerHTML = renderSearch(); return }
   if (tab === 'home') { view.innerHTML = renderHome(); return }
   const g = groupOf(tab)
@@ -2526,6 +2539,7 @@ window.addEventListener('popstate', e => {
 // ── Нажатия ──────────────────────────────────────────────────
 document.addEventListener('click', e => {
   if (e.target.closest('[data-logout]')) return logout()
+  if (e.target.closest('[data-acct]')) { go('mine'); setTimeout(() => { const el = document.querySelector('.sync'); if (el) el.scrollIntoView({ behavior:'smooth', block:'center' }) }, 650); return }
   if (e.target.closest('[data-forgot]')) return forgotPassword()
   const vb = e.target.closest('button[data-visit]'); if (vb) return toggleVisited(vb.dataset.visit)
   const ar = e.target.closest('[data-arr]'); if (ar) { const r = ar.parentElement.querySelector('.row, .subnav'); return r.scrollBy({ left: ar.dataset.arr * r.clientWidth * .7, behavior:'smooth' }) }
@@ -2563,7 +2577,8 @@ document.addEventListener('change', e => {
 })
 document.addEventListener('submit', e => {
   if (e.target.id === 'addPlace') { e.preventDefault(); addPlace(new FormData(e.target)) }
-  if (e.target.id === 'pwForm') { e.preventDefault(); const fd = new FormData(e.target); passwordLogin(fd.get('email').trim(), fd.get('password')) }
+  if (e.target.id === 'pwForm') { e.preventDefault(); const fd = new FormData(e.target); passwordLogin(fd.get('email').trim(), fd.get('password'), (fd.get('name') || '').trim().slice(0, 40)) }
+  if (e.target.id === 'setName') { e.preventDefault(); setName(new FormData(e.target).get('name') || '') }
   if (e.target.id === 'setPw') { e.preventDefault(); setPassword(new FormData(e.target).get('password')) }
 })
 document.getElementById('searchForm').onsubmit = e => { e.preventDefault(); query = document.getElementById('q').value.trim(); render() }
@@ -2652,6 +2667,28 @@ async function mergeAfterLogin() {
   // облако само не пустит дубли (одно место — одна запись)
   if (add.length) await db.from('entries').upsert(add.map(r => ({ entity_type:r.entity_type, data:r.data })), { onConflict:'owner,entity_type,item_key', ignoreDuplicates:true })
 }
+// Кто вошёл: имя из профиля (или начало почты), значок в шапке, всплывающее сообщение
+const userName = () => me && !me.is_anonymous ? ((me.user_metadata && me.user_metadata.name) || (me.email || '').split('@')[0]) : ''
+function renderAcct() {
+  const b = document.getElementById('acct'); if (!b) return
+  const n = userName(); b.className = 'acct' + (n ? ' in' : ''); b.textContent = n ? '🙂 ' + n : '👤 Войти'
+  b.title = n ? 'Вы вошли как ' + (me.email || '') : 'Войти, чтобы список был на всех устройствах'
+}
+function toast(text) {
+  let t = document.getElementById('toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; t.className = 'toast'; document.body.append(t) }
+  t.textContent = text; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 4000)
+}
+function greet() {
+  const n = userName(); renderAcct(); if (!n) return
+  toast('👋 Привет, ' + n + '! Вы вошли — ваш список сохранён на всех устройствах')
+  if (typeof cubEl !== 'undefined' && cubEl && !calmMotion) { const w = CUB_ACTS.find(a => a.n === 'wave'); cubDo({ ...w, fx:'Привет, ' + n + '!' }) }
+}
+async function setName(name) {
+  const { data, error } = await db.auth.updateUser({ data:{ name: name.trim().slice(0, 40) } })
+  if (!error && data.user) me = data.user
+  mailSent = error ? authMsg(error.message) : '✅ Имя сохранено'
+  renderAcct(); const y = window.scrollY; render(); window.scrollTo(0, y)
+}
 // Запоминаем список этого устройства, чтобы после входа добавить его в общий
 function rememberForMerge() {
   try { localStorage.setItem('bali-merge', JSON.stringify([...favs, ...places].map(r => ({ entity_type: favs.includes(r) ? 'fav' : 'place', data:r.data })))) } catch (e) {}
@@ -2660,19 +2697,21 @@ const authMsg = m => /invalid login/i.test(m) ? '⚠️ Неверная поч�
   : /already registered|already been registered/i.test(m) ? '⚠️ Эта почта уже зарегистрирована — нажмите «Войти» (или «прислать ссылку», если пароля нет)'
   : /rate|limit|seconds/i.test(m) ? '⚠️ Слишком много попыток — подождите немного'
   : /least 6|weak|short/i.test(m) ? '⚠️ Пароль слишком короткий — нужно не меньше 6 символов' : '⚠️ ' + m
-async function passwordLogin(email, password) {
+async function passwordLogin(email, password, name) {
   if (!password || password.length < 6) { mailSent = '⚠️ Пароль — не короче 6 символов'; return render() }
   rememberForMerge()
   let r = await db.auth.signInWithPassword({ email, password })
   if (r.error && /invalid login/i.test(r.error.message)) {
     // такой почты ещё нет — создаём вход; если есть — значит, неверный пароль
-    const up = await db.auth.signUp({ email, password })
+    const up = await db.auth.signUp({ email, password, options:{ data: name ? { name } : {} } })
     if (up.error) { mailSent = /already/i.test(up.error.message) ? '⚠️ Неверный пароль. Если забыли — нажмите «Забыли пароль?»' : authMsg(up.error.message); const y = window.scrollY; render(); window.scrollTo(0, y); return }
     r = up
   } else if (r.error) { mailSent = authMsg(r.error.message); return render() }
   if (!r.data.session) { mailSent = '⚠️ Не получилось войти — попробуйте ещё раз'; return render() }
   mailSent = ''
-  me = r.data.session.user; await mergeAfterLogin(); await load()
+  me = r.data.session.user
+  if (name && !(me.user_metadata && me.user_metadata.name)) { const u = await db.auth.updateUser({ data:{ name } }); if (u.data && u.data.user) me = u.data.user }
+  await mergeAfterLogin(); await load(); greet()
 }
 async function forgotPassword() {
   const em = (document.querySelector('#pwForm [name=email]') || {}).value
@@ -2688,6 +2727,7 @@ async function setPassword(password) {
   const y = window.scrollY; render(); window.scrollTo(0, y)
 }
 async function logout() {
+  toast('Вы вышли из аккаунта. Войти снова — значок «👤 Войти» вверху')
   await db.auth.signOut(); me = null; favs = []; places = []; mailSent = ''
   render(); ensureUser()
 }
