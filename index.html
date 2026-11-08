@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
+<meta name="build" content="20261108-2045">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -2936,6 +2937,21 @@ if (start && groupOf(start)) { const g = groupOf(start); tab = g.id; sub = g.sub
 history.replaceState({ tab, sub, d:0 }, '')
 render()
 ensureUser()
+// Автообновление: телефон (особенно значок на экране) держит старую копию гайда.
+// При открытии и при возврате в гайд проверяем номер версии на сайте; вышла новая — тихо загружаем её.
+const BUILD = (document.querySelector('meta[name=build]') || {}).content || ''
+async function checkUpdate() {
+  if (/access_token|type=recovery/.test(location.hash)) return
+  try {
+    const r = await fetch(location.pathname + '?check=' + Date.now(), { cache:'no-store' })
+    const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/)
+    if (!m || m[1] === BUILD || sessionStorage.getItem('bali-upd') === m[1]) return
+    sessionStorage.setItem('bali-upd', m[1])
+    location.replace(location.pathname + '?v=' + m[1] + location.hash)
+  } catch (e) {}
+}
+setTimeout(checkUpdate, 2000)
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate() })
 cubInit()
 if (cubOff()) document.querySelectorAll('.cubtoggle').forEach(b => b.hidden = false)
 </script>
