@@ -2455,7 +2455,7 @@ function renderMine() {
         <input name="password" type="password" minlength="6" placeholder="Пароль (не короче 6 символов)" autocomplete="current-password">
         <div class="two"><button type="submit" value="in">Войти</button><button type="submit" value="up" class="ghost">Создать вход</button></div>
         <button type="button" class="linkbtn" data-magic="1">Забыли пароль или без пароля — прислать ссылку на почту</button>${mailSent ? `<div class="sync-msg">${esc(mailSent)}</div>` : ''}</form>
-        <form class="add sync" id="linkForm"><p><b>Гайд открыт значком с экрана телефона?</b> Ссылка из письма откроется в Safari, поэтому войдите так: в письме <b>удержите палец на кнопке «Sign in»</b> → «Скопировать ссылку» → вернитесь сюда и вставьте её в поле.</p>
+        <form class="add sync" id="linkForm"><p><b>Гайд открыт значком с экрана телефона?</b> Проще всего так: 1) в письме <b>просто нажмите «Sign in»</b> — вы войдёте в Safari; 2) там в «Моём списке» нажмите «🔑 Задать пароль»; 3) вернитесь сюда и войдите почтой и паролем. Если удобнее — скопируйте ссылку из письма и вставьте её ниже (на iPhone удержание пальца на ссылке иногда само её «использует»).</p>
         <input name="link" placeholder="Вставьте ссылку из письма" autocomplete="off"><button type="submit">Войти по ссылке</button></form>`}
     <h4>Добавить своё место</h4>
     <form class="add" id="addPlace">
@@ -2690,7 +2690,7 @@ async function linkLogin(link) {
   if (!token) { mailSent = '⚠️ Это не похоже на ссылку из письма — скопируйте её целиком'; return render() }
   rememberForMerge()
   const { data, error } = await db.auth.verifyOtp({ token_hash: token, type })
-  if (error || !data.session) { mailSent = '⚠️ Ссылка устарела или уже использована — нажмите «прислать ссылку на почту» ещё раз'; const y = window.scrollY; render(); window.scrollTo(0, y); return }
+  if (error || !data.session) { mailSent = '⚠️ Ссылка уже использована. Нажмите «Sign in» в письме обычным нажатием — войдёте в Safari, задайте там пароль и войдите здесь почтой и паролем'; const y = window.scrollY; render(); window.scrollTo(0, y); return }
   mailSent = '✅ Вы вошли. Задайте пароль ниже — тогда в следующий раз хватит почты и пароля.'
   me = data.session.user; await mergeAfterLogin(); await load()
 }
