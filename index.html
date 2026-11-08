@@ -567,7 +567,8 @@ const THEME = {
   fun:   ['gecko',   ['#8FA3B8', '#E8752E', '#F2E8DA']],         // геккон токи
   spa:   ['gecko',   ['#8FA3B8', '#E8752E', '#F2E8DA']],
   exp:   ['gecko',   ['#8FA3B8', '#E8752E', '#F2E8DA']],
-  shop:  ['gecko',   ['#8FA3B8', '#E8752E', '#F2E8DA']],
+  shopping:['gecko', ['#D9B8C9', '#C2416F', '#F8ECF2']],        // розовый геккон — свой узор для шопинга
+  shop:  ['gecko',   ['#D9B8C9', '#C2416F', '#F8ECF2']],
   kids:  ['macaque', ['#B8A58C', '#7C6A55', '#E6DCCB']],       // макаки из Леса обезьян
   pool:  ['gecko',   ['#7FB07A', '#E35A3B', '#EAF2D8']],
   trip:  ['python',  ['#C9B27A', '#3B2A17', '#1A120A']],      // оливковый питон
@@ -2201,7 +2202,8 @@ const GROUPS = [
   { id:'move', name:'Транспорт', icon:'🛵', subs:['taxi', 'ride', 'drive'] },
   { id:'sea', name:'Море', icon:'🏖️', subs:['beach', 'club', 'surf'] },
   { id:'eat', name:'Еда и бары', icon:'🍜', subs:['food', 'cafe', 'coffee', 'bars'] },
-  { id:'fun', name:'Активности', icon:'🎯', subs:['spa', 'exp', 'kids', 'pool', 'shop'] },
+  { id:'fun', name:'Активности', icon:'🎯', subs:['spa', 'exp', 'kids', 'pool'] },
+  { id:'shopping', name:'Шопинг', icon:'🛍️', subs:['shop'], hint:'Магазины, рынки, торговые центры' },
   { id:'trip', name:'Красивые места', icon:'🌋', subs:['trip', 'falls', 'islands'] },
   { id:'live', name:'Зимовка и быт', icon:'🏝️', subs:['winter', 'laundry'] },
   { id:'recs', name:'Рекомендасьёны из тредс/инстаграма', icon:'💬', hint:'Советы из Threads и Instagram' },
@@ -2275,7 +2277,7 @@ function renderHome() {
     <h2>Всё о Бали — в одном месте</h2>
     <p class="lead">Выберите раздел. Отмечайте ☆ места, которые хотите посетить, — они сохранятся в «Моём списке» и будут видны с телефона.</p>
     <div class="tiles">${GROUPS.filter(g => g.id !== 'home').map(g => {
-      const hint = g.subs ? g.subs.map(id => pageName(id)[1]).join(' · ') : g.hint
+      const hint = g.hint || (g.subs ? g.subs.map(id => pageName(id)[1]).join(' · ') : '')
       return `<button class="tile" data-tab="${g.id}"><div class="pic pr-${g.id}"><div class="ic">${g.icon}</div></div><b>${g.name}</b><span>${hint}</span></button>`
     }).join('')}</div>
     <div class="facts">
