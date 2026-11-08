@@ -1490,7 +1490,7 @@ function renderLaundry(sec) {
   const areas = [...new Set(sec.items.map(i => i.area.split(/ \/ |, | \(/)[0]))]
   const items = sec.items.filter(i => !areaFilter || i.area.startsWith(areaFilter))
   return `<h2>${sec.icon} ${sec.name}</h2>
-    <p class="lead">${sec.lead}</p>
+    <p class="lead">${ownTxt(sec.lead)}</p>
     <h4>✅ Как не испортить вещи</h4>
     <div class="surprise"><ul class="feats" style="margin:0">${LAUNDRY_TIPS.map(t => `<li>${t}</li>`).join('')}</ul></div>
     <h4>💬 Что сказать в прачечной</h4>
@@ -2215,6 +2215,18 @@ const TABS = GROUPS
 // ── Состояние ────────────────────────────────────────────────
 let tab = 'home', sub = '', areaFilter = '', query = ''
 let favs = [], places = [], cloudOk = null
+// Владелец гайда: только он видит пометки «📌 из подборки» (места при этом видны всем)
+const OWNER_IDS = ['07b9d67d-3c5d-4221-b52c-6615f93960ea']
+const isOwner = () => { try { return !!me && OWNER_IDS.includes(me.id) } catch (e) { return false } }
+// Для остальных убираем упоминания «вашей подборки» из текстов
+function ownTxt(t) {
+  if (isOwner() || !t) return t
+  return String(t).replace(/ из вашей подборки 📌/g, '').replace(/ — по вашей подборке 📌 \(2026\)/g, ' (2026)')
+    .replace(/, которые вы собрали 📌/g, '').replace(/^По отзывам из подборки — /, 'По отзывам — ')
+    .replace(/⚠️ По отзывам из подборки — /, '⚠️ По отзывам — ').replace(/^Из вашей подборки — п/, 'П')
+    .replace(/ 📌 — из вашей подборки\./g, '').replace('Сам клуб автору подборки не очень, но', 'Сам клуб — на любителя, но').replace('выше всех в подборке', 'выше всех в списке')
+}
+const ownFeats = fs => isOwner() ? fs : fs.filter(x => !/^Из вашей подборки клубов/.test(x)).map(ownTxt)
 const view = document.getElementById('view')
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 const keyOf = (sec, it) => sec.id + ':' + it.title
@@ -2251,9 +2263,9 @@ function card(sec, it, showSec) {
     ${(ph => ph ? `<figure class="ph"><img src="${ph[0]}" alt="${esc(it.title)}" loading="lazy"><figcaption>${ph[4] ? esc(ph[4]) + ' · ' : ''}Фото: <a href="${ph[3]}" target="_blank" rel="noopener">${esc(ph[1] || 'Wikimedia Commons')}</a>, ${esc(ph[2])}</figcaption></figure>` : '')(PHOTOS[k])}
     <div class="card-top"><h3>${esc(it.title)}${showSec ? `<span class="sec-tag">${sec.icon} ${sec.name}</span>` : ''}</h3>
       <button class="star ${on ? 'on' : ''}" data-fav="${esc(k)}" title="${on ? 'Убрать из моего списка' : 'В мой список'}">${on ? '★' : '☆'}</button></div>
-    <div class="area">📍 ${esc(it.area)}${it.pick ? ' <span class="pick">📌 из подборки</span>' : ''}${(fv => fv && fv.data.visited ? ' <span class="pick been">✅ побывали</span>' : '')(favs.find(x => x.data.key === k))}</div>
+    <div class="area">📍 ${esc(it.area)}${it.pick && isOwner() ? ' <span class="pick">📌 из подборки</span>' : ''}${(fv => fv && fv.data.visited ? ' <span class="pick been">✅ побывали</span>' : '')(favs.find(x => x.data.key === k))}</div>
     ${it.hours || it.price ? `<div class="meta">${it.hours ? `<div>🕒 <span>${esc(it.hours)}</span></div>` : ''}${it.price ? `<div>${HEALTH_SECS.includes(sec) ? '📞' : '💰'} <span>${esc(it.price)}</span></div>` : ''}</div>` : ''}
-    ${it.feats.length ? `<ul class="feats">${it.feats.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : ''}
+    ${(fs => fs.length ? `<ul class="feats">${fs.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '')(ownFeats(it.feats))}
     <div class="foot"><a class="btn" href="${mapUrl(it.title, it.area)}" target="_blank" rel="noopener">🗺️ На карте</a>${MAP_COORDS[k] ? `<button class="btn" data-mgo="${esc(k)}">📍 Что рядом</button>` : ''}${IG[k] ? `<a class="btn" href="https://www.instagram.com/${IG[k]}/" target="_blank" rel="noopener">📷 Instagram</a>` : ''}</div>
   </div>`
 }
@@ -2302,7 +2314,7 @@ function renderTaxi() {
 
 function renderRecs() {
   return `<h2>💬 Рекомендасьёны из тредс/инстаграма</h2>
-    <p class="lead">Советы из Threads и Instagram, которые вы собрали 📌. Темы будут пополняться.</p>
+    <p class="lead">Советы из Threads и Instagram${isOwner() ? ', которые вы собрали 📌' : ''}. Темы будут пополняться.</p>
     ${REC_TOPICS.map(tp => `<h4>${tp.icon} ${tp.name}</h4>
       ${tp.note ? `<p class="lead" style="font-size:14px">${tp.note}</p>` : ''}
       ${tp.items.map(r => `<div class="law" style="border-left-color:#E8B500"><h3>${r.t}</h3><p><b>${r.what}.</b> ${r.why}</p>${r.where ? `<p>🛒 ${r.where}</p>` : ''}<div class="cons">💬 ${r.said}</div></div>`).join('')}`).join('')}`
@@ -2395,7 +2407,7 @@ function renderDrive() {
 function miniList(sec, list) {
   if (!list.length) return ''
   const areas = [...new Set(list.map(i => i.area))]
-  return `<h4>📌 Ещё из вашей подборки</h4>${areas.map(a => `<div class="minis"><div class="g">📍 ${esc(a)}</div>${list.filter(i => i.area === a).map(i => {
+  return `<h4>${isOwner() ? '📌 Ещё из вашей подборки' : '📍 Ещё места'}</h4>${areas.map(a => `<div class="minis"><div class="g">📍 ${esc(a)}</div>${list.filter(i => i.area === a).map(i => {
     const k = keyOf(sec, i), on = favs.some(f => f.data.key === k)
     return `<div class="mini"><span>${esc(i.title)}</span><a href="${mapUrl(i.title, i.area)}" target="_blank" rel="noopener" title="На карте">🗺️</a><button class="star ${on ? 'on' : ''}" data-fav="${esc(k)}">${on ? '★' : '☆'}</button></div>`
   }).join('')}</div>`).join('')}`
@@ -2406,7 +2418,7 @@ function renderSection(sec) {
   const black = i => i.feats.some(f => f.startsWith('⚫'))
   const items = sec.items.filter(i => !areaFilter || (areaFilter === '__black' ? black(i) : i.area.startsWith(areaFilter)))
   return `<h2>${sec.icon} ${sec.name}</h2>
-    <p class="lead">${sec.lead}</p>
+    <p class="lead">${ownTxt(sec.lead)}</p>
     ${sec.id === 'islands' ? `<h4>🧭 Как добраться самостоятельно</h4>${ISLANDS_HOWTO.map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')}<h4>🚢 Как добраться до Явы</h4>${JAVA_HOWTO.map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')}<h4>📍 Куда поехать</h4>` : ''}
     <div class="chips"><button class="chip ${!areaFilter ? 'on' : ''}" data-area="">Все</button>${sec.id === 'beach' ? `<button class="chip ${areaFilter === '__black' ? 'on' : ''}" data-area="__black">⚫ Чёрный песок</button>` : ''}${areas.map(a => `<button class="chip ${areaFilter === a ? 'on' : ''}" data-area="${esc(a)}">${esc(a)}</button>`).join('')}</div>
     <div class="cards">${items.filter(i => !i.mini).map((i, n) => [i, n]).sort((a, b) => (!PHOTOS[keyOf(sec, b[0])] - !PHOTOS[keyOf(sec, a[0])]) * -1 || a[1] - b[1]).map(([i]) => card(sec, i)).join('')}</div>
