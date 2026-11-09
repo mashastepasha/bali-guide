@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261109-1300">
+<meta name="build" content="20261109-1900">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -1578,13 +1578,23 @@ function renderLaundry(sec) {
 
 // Фото мест с Wikimedia Commons: ключ «раздел:название» → [ссылка, автор, лицензия, страница, подпись]
 const PHOTOS = {
-"beach:Бату Болонг": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Batu_Bolong_Beach%2C_Canggu.jpg/500px-Batu_Bolong_Beach%2C_Canggu.jpg",
-"Alharomain354",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Batu_Bolong_Beach,_Canggu.jpg",
-"Скала на пляже Бату Болонг"
-],
+  "islands:Остров Сумба": ["images/places/islands-1678150913309-cbebdf17d804.jpg", "Deepavali Gaind", "Unsplash", "https://unsplash.com/photos/a-group-of-horses-running-along-the-beach-C-K880krjWo", ""],
+  "islands:Розовый пляж Pink Beach (Pantai Tangsi)": ["images/places/islands-1703273839299-9d50e59631fe.jpg", "Kalyan Mukherjee", "Unsplash", "https://unsplash.com/photos/an-aerial-view-of-a-beach-with-palm-trees-PT1C2WQig1I", ""],
+  "falls:Aling-Aling": ["images/places/falls-1560627441-da8b4d6aedb1.jpg", "Mamun Srizon", "Unsplash", "https://unsplash.com/photos/waterfalls-surrounded-by-plants-and-trees-XoT-pe4gvHg", ""],
+  "falls:Nungnung": ["images/places/falls-1565981114414-98b93b23bf55.jpg", "Arnabesh Samadder", "Unsplash", "https://unsplash.com/photos/waterfall-in-forest--yMrzul9i5M", ""],
+  "falls:Tibumana": ["images/places/falls-1718357168707-86297a530817.jpg", "Narno Beats", "Unsplash", "https://unsplash.com/photos/a-waterfall-in-the-middle-of-a-forest-ab_wplg5Ojk", ""],
+  "trip:Ворота Хандара": ["images/places/trip-1591751658737-44fc2d178fda.jpg", "Juli Artana", "Unsplash", "https://unsplash.com/photos/woman-in-black-jacket-standing-on-gray-concrete-pathway-during-daytime-INkwZ4BjGSs", ""],
+  "club:Koli Koli Sidemen": ["images/places/club-1558005530-a7958896ec60.jpg", "Geio Tischler", "Unsplash", "https://unsplash.com/photos/person-walking-through-green-rice-terraces-7hww7t6NLcg", ""],
+  "club:The Edge": ["images/places/club-1671034456366-77aff6bd3316.jpg", "Bambang Irawan", "Unsplash", "https://unsplash.com/photos/a-scenic-view-of-the-ocean-from-a-cliff-SDYL8dUN3p0", ""],
+  "club:Ulu Cliffhouse": ["images/places/club-1693625656620-e2ffa01fa81a.jpg", "Fachry Hadid", "Unsplash", "https://unsplash.com/photos/a-sunset-view-of-a-beach-with-stairs-leading-to-the-ocean-3EWlP4aq4pE", ""],
+  "club:Sundays Beach Club": ["images/places/club-1702085197503-126404483040.jpg", "Hongbin", "Unsplash", "https://unsplash.com/photos/a-bunch-of-umbrellas-that-are-on-a-beach-F-aOXvVAQHw", ""],
+  "club:Single Fin": ["images/places/club-1654137065507-8e43236cb3a3.jpg", "David Gor", "Unsplash", "https://unsplash.com/photos/a-man-riding-a-wave-on-top-of-a-surfboard-NM4oq7v_Mdo", ""],
+  "club:Finns Beach Club": ["images/places/club-1567329916012-26f1f39f04c3.jpg", "Shawn", "Unsplash", "https://unsplash.com/photos/finns-building-during-nighttime-FRuj-ST3wZE", ""],
+  "beach:Баланган": ["images/places/beach-1604152560043-bfbc2eb79943.jpg", "Polina Kuzovkova", "Unsplash", "https://unsplash.com/photos/people-on-beach-during-daytime-lHz2shoDr0w", ""],
+  "beach:Пляж у отеля Kempinski": ["images/places/beach-1717850702166-4804294d4d4e.jpg", "Dominic Kurniawan Suryaputra", "Unsplash", "https://unsplash.com/photos/an-aerial-view-of-a-resort-by-the-ocean-SZaqYp60Wa4", ""],
+  "beach:Переренан": ["images/places/beach-1754799399805-da0178249638.jpg", "Ari Kurniawan", "Unsplash", "https://unsplash.com/photos/waves-crash-against-rocks-on-a-serene-beach-wAg0NlNOd4M", ""],
+  "beach:Берава": ["images/places/beach-1721984288541-96b644c716d5.jpg", "Mentari Fbc", "Unsplash", "https://unsplash.com/photos/an-aerial-view-of-a-beach-with-a-city-in-the-background-JQ5YMIOipuI", ""],
+"beach:Бату Болонг": ["images/places/beach-1546484475-7f7bd55792da.jpg", "Cassie Gallegos", "Unsplash", "https://unsplash.com/photos/white-parasol-and-lounge-near-seashores-Lqno1bhxoiE", ""],
 "beach:Эхо Бич": [
 "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/La_Brisa_beach_club_at_Echo_Beach%2C_Canggu%2C_Bali.jpg/500px-La_Brisa_beach_club_at_Echo_Beach%2C_Canggu%2C_Bali.jpg",
 "Meetvas",
@@ -1592,90 +1602,18 @@ const PHOTOS = {
 "https://commons.wikimedia.org/wiki/File:La_Brisa_beach_club_at_Echo_Beach,_Canggu,_Bali.jpg",
 "Вечер в бич-клабе La Brisa на Эхо Бич"
 ],
-"beach:Семиньяк / Дабл Сикс": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Seminyak_Beach_at_sunset.jpg/500px-Seminyak_Beach_at_sunset.jpg",
-"Christophe95",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Seminyak_Beach_at_sunset.jpg",
-"Закат на пляже Семиньяк"
-],
-"beach:Кута": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/31/Kuta_Beach%2C_Bali%2C_20220825_1334_0839.jpg/500px-Kuta_Beach%2C_Bali%2C_20220825_1334_0839.jpg",
-"Jakub Hałun",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Kuta_Beach,_Bali,_20220825_1334_0839.jpg",
-""
-],
-"beach:Джимбаран": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Jimbaran_beach_at_sunset.jpg/500px-Jimbaran_beach_at_sunset.jpg",
-"Akmaie Ajam",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Jimbaran_beach_at_sunset.jpg",
-"Столики ресторанов на песке на закате"
-],
-"beach:Паданг-Паданг": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f6/Padang_Padang_Beach_Bali.jpg/500px-Padang_Padang_Beach_Bali.jpg",
-"TMFalkner",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Padang_Padang_Beach_Bali.jpg",
-""
-],
-"beach:Бинжин": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3b/The_Perfect_Sunset.jpg/500px-The_Perfect_Sunset.jpg",
-"Tuwuh",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:The_Perfect_Sunset.jpg",
-"Закат на пляже Бинжин"
-],
-"beach:Дримленд": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Dreamland_Beach_%28Bali%2C_Indonesia%29.jpg/500px-Dreamland_Beach_%28Bali%2C_Indonesia%29.jpg",
-"Krismartin at English Wikipedia",
-"Public domain",
-"https://commons.wikimedia.org/wiki/File:Dreamland_Beach_(Bali,_Indonesia).jpg",
-""
-],
-"beach:Меласти": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/b3/Melasti_Beach_coast.jpg/500px-Melasti_Beach_coast.jpg",
-"Dare2Leap",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Melasti_Beach_coast.jpg",
-""
-],
-"beach:Пандава": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/ab/Pandawa_Beach%2C_Kuta_Selatan_-_Bali.jpg/500px-Pandawa_Beach%2C_Kuta_Selatan_-_Bali.jpg",
-"Herryz",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Pandawa_Beach,_Kuta_Selatan_-_Bali.jpg",
-"Вид на пляж Пандава сверху"
-],
-"beach:Нуса Дуа (Гегер)": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Pura_Geger_Beach_in_Nusa_Dua.jpg/500px-Pura_Geger_Beach_in_Nusa_Dua.jpg",
-"Devianagloria",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Pura_Geger_Beach_in_Nusa_Dua.jpg",
-"Закат на пляже Гегер"
-],
-"beach:Санур": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/b/ba/250217_Sanur_Beach_08.jpg/500px-250217_Sanur_Beach_08.jpg",
-"Aspere",
-"CC0",
-"https://commons.wikimedia.org/wiki/File:250217_Sanur_Beach_08.jpg",
-""
-],
-"beach:Ньянг-Ньянг": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/fa/Nyang-Nyang_Beach_Sunset.jpg/500px-Nyang-Nyang_Beach_Sunset.jpg",
-"Denyezra",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Nyang-Nyang_Beach_Sunset.jpg",
-"Закат и камни в отлив на Ньянг-Ньянг"
-],
-"beach:Грин Боул": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/09/Green_Bowl_Beach_%2815238737765%29.jpg/500px-Green_Bowl_Beach_%2815238737765%29.jpg",
-"Vladimir E from Rostov-na-Donu, Russia",
-"CC BY 2.0",
-"https://commons.wikimedia.org/wiki/File:Green_Bowl_Beach_(15238737765).jpg",
-"Тропинка к пляжу Грин Боул"
-],
+"beach:Семиньяк / Дабл Сикс": ["images/places/beach-1552272492-3053fbacbf4b.jpg", "Felipe Palacio", "Unsplash", "https://unsplash.com/photos/silhouette-of-palm-tree-and-people-on-beach-3GigycWLG0c", ""],
+"beach:Кута": ["images/places/beach-1567520595708-2fb411a6ce88.jpg", "George Bakos", "Unsplash", "https://unsplash.com/photos/people-at-the-beach-during-golden-hour-CQIu3lBuDQs", ""],
+"beach:Джимбаран": ["images/places/beach-1720673926729-9b024a269f48.jpg", "rangga fauzi", "Unsplash", "https://unsplash.com/photos/a-sandy-beach-with-tables-and-chairs-on-it-bbnMFeYuTk0", ""],
+"beach:Паданг-Паданг": ["images/places/beach-1520535119843-cd60086cbfaa.jpg", "Oliver Sjöström", "Unsplash", "https://unsplash.com/photos/aerial-photo-of-beach-m-wq_VUPhgA", ""],
+"beach:Бинжин": ["images/places/beach-1518731683836-4e9cce00ba49.jpg", "Sebastian Staines", "Unsplash", "https://unsplash.com/photos/person-submerge-on-water-near-islands-AxWHXiZmWJo", ""],
+"beach:Дримленд": ["images/places/beach-1642920039335-65c4c0213961.jpg", "Alexander Nrjwolf", "Unsplash", "https://unsplash.com/photos/a-view-of-a-beach-with-umbrellas-and-a-cloudy-sky-pNJlbjftIHk", ""],
+"beach:Меласти": ["images/places/beach-1670769485743-44fadae5c190.jpg", "Fioren Wiryanata", "Unsplash", "https://unsplash.com/photos/a-walkway-leading-to-a-beach-with-a-gazebo-in-the-distance-yfaX5UzpTSg", ""],
+"beach:Пандава": ["images/places/beach-1583402435083-5fff7cbf1c34.jpg", "Nico Wijaya", "Unsplash", "https://unsplash.com/photos/people-on-beach-during-daytime-f2F-4Zpmd_k", ""],
+"beach:Нуса Дуа (Гегер)": ["images/places/beach-1517480448885-d5c53555ba8c.jpg", "jarrad horne", "Unsplash", "https://unsplash.com/photos/four-huts-at-beach-under-blue-skies-during-daytime-c-UJQKs8fFU", ""],
+"beach:Санур": ["images/places/beach-1733281120655-8da3dc371514.jpg", "Didi Suprapta", "Unsplash", "https://unsplash.com/photos/a-sunset-view-of-a-body-of-water-with-a-mountain-in-the-background-eXiZpmVTgYk", ""],
+"beach:Ньянг-Ньянг": ["images/places/beach-1654159148138-bf64a2278cf7.jpg", "David Gor", "Unsplash", "https://unsplash.com/photos/an-aerial-view-of-a-beach-and-a-forested-area-MfazH2xXUNQ", ""],
+"beach:Грин Боул": ["images/places/beach-1575523996878-06e4c94201cf.jpg", "Ranjith", "Unsplash", "https://unsplash.com/photos/island-and-sea-under-blue-sky-EYOvTgQ8NqU", ""],
 "beach:Амед и Туламбен": [
 "https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2e/Bali-amed-village-fishing-beach-boats.jpg/500px-Bali-amed-village-fishing-beach-boats.jpg",
 "Marklchaves",
@@ -1711,13 +1649,7 @@ const PHOTOS = {
 "https://commons.wikimedia.org/wiki/File:Bias_Tugel_Beach_aerial_2026_01.jpg",
 "Бухта Биас Тугел с высоты"
 ],
-"beach:Сулубан": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Pantai_suluban_blue_point_bali.jpg/500px-Pantai_suluban_blue_point_bali.jpg",
-"I made jon arinata",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Pantai_suluban_blue_point_bali.jpg",
-""
-],
+"beach:Сулубан": ["images/places/beach-1576019206484-54273acdfa89.jpg", "Darren Lawrence", "Unsplash", "https://unsplash.com/photos/person-standing-on-cliff-in-front-of-ocean-during-daytime-yKjURf1u7EY", ""],
 "surf:Инструкторы на пляже Бату Болонг": [
 "https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/Batu_Bolong_Beach%2C_Canggu.jpg/500px-Batu_Bolong_Beach%2C_Canggu.jpg",
 "Alharomain354",
@@ -1732,20 +1664,8 @@ const PHOTOS = {
 "https://commons.wikimedia.org/wiki/File:Bali_Safari_%26_Marine_Park.jpg",
 "Главный вход в парк"
 ],
-"kids:Bali Bird Park": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/60/Bali_Bird_Park.jpg/500px-Bali_Bird_Park.jpg",
-"Lasthib",
-"CC BY-SA 3.0",
-"https://commons.wikimedia.org/wiki/File:Bali_Bird_Park.jpg",
-"Попугаи ара у входа в парк"
-],
-"kids:Bali Zoo": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/53/Bali_Zoo.jpg/500px-Bali_Zoo.jpg",
-"Ossi Petruska from Espoo, Finland",
-"CC BY-SA 2.0",
-"https://commons.wikimedia.org/wiki/File:Bali_Zoo.jpg",
-"Резные ворота зоопарка"
-],
+"kids:Bali Bird Park": ["images/places/kids-1736267912527-b4341f92eaa5.jpg", "Kristijan Arsov", "Unsplash", "https://unsplash.com/photos/a-black-bird-with-a-yellow-beak-sitting-on-a-branch-DU3MzA0IjvE", ""],
+"kids:Bali Zoo": ["images/places/kids-1692251744004-c7db67af544b.jpg", "Mugdha Agrawal", "Unsplash", "https://unsplash.com/photos/a-couple-of-giraffes-walking-across-a-dirt-road-7g0CerMdMDk", ""],
 "kids:Bali Farm House": [
 "https://thumb.wikimedia.org/wikipedia/commons/thumb/1/16/Bali_Farm_House_05.jpg/500px-Bali_Farm_House_05.jpg",
 "Tisa0603",
@@ -1774,13 +1694,7 @@ const PHOTOS = {
 "https://commons.wikimedia.org/wiki/File:Beats_On.jpg",
 "Сцена на фестивале Atlas Beach Fest"
 ],
-"club:Potato Head": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/9/9e/Potato_Head_-_Hotel_right_at_the_beach_in_Seminyak%2C_Bali_-_panoramio_%281%29.jpg/500px-Potato_Head_-_Hotel_right_at_the_beach_in_Seminyak%2C_Bali_-_panoramio_%281%29.jpg",
-"Scorewith German",
-"CC BY 3.0",
-"https://commons.wikimedia.org/wiki/File:Potato_Head_-_Hotel_right_at_the_beach_in_Seminyak,_Bali_-_panoramio_(1).jpg",
-"Знаменитый фасад из старых деревянных ставней"
-],
+"club:Potato Head": ["images/places/club-1570530648871-09c9732e3f0e.jpg", "Lenox Le", "Unsplash", "https://unsplash.com/photos/architectural-photography-of-houses-xnd-iWEK7Zg", ""],
 "club:Ku De Ta": [
 "https://upload.wikimedia.org/wikipedia/commons/d/da/Seminyak_Kudeta.JPG",
 "(WT-en) Jpatokal at English Wikivoyage",
@@ -1795,13 +1709,7 @@ const PHOTOS = {
 "https://commons.wikimedia.org/wiki/File:Mari_Beach_Club_(shot_a_night_from_the_beach).jpg",
 "Вид с пляжа на закате"
 ],
-"club:La Brisa": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/La_Brisa_beach_club_at_Echo_Beach%2C_Canggu%2C_Bali.jpg/500px-La_Brisa_beach_club_at_Echo_Beach%2C_Canggu%2C_Bali.jpg",
-"Meetvas",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:La_Brisa_beach_club_at_Echo_Beach,_Canggu,_Bali.jpg",
-"La Brisa вечером на Эхо Бич"
-],
+"club:La Brisa": ["images/places/club-1666261012387-3b8d48975c08.jpg", "Antoine lecoquierre", "Unsplash", "https://unsplash.com/photos/a-beach-with-palm-trees-and-a-body-of-water-IAJCa5JcbeI", ""],
 "club:Café del Mar": [
 "https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c1/Cafe_del_Mar_Bali.jpg/500px-Cafe_del_Mar_Bali.jpg",
 "M",
@@ -1809,266 +1717,44 @@ const PHOTOS = {
 "https://commons.wikimedia.org/wiki/File:Cafe_del_Mar_Bali.jpg",
 "Вид на клуб с пляжа"
 ],
-"club:Karma Beach": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Karma_Kandara_Resort_%28di_Mare_Restaurant%29_hillside_view.jpg/500px-Karma_Kandara_Resort_%28di_Mare_Restaurant%29_hillside_view.jpg",
-"Dare2Leap",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Karma_Kandara_Resort_(di_Mare_Restaurant)_hillside_view.jpg",
-"Скалы курорта Karma Kandara — под ними Karma Beach"
-],
-"trip:Рисовые террасы Тегаллаланг": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/3a/Tegallalang_Rice_Terraces_Bali.jpg/500px-Tegallalang_Rice_Terraces_Bali.jpg",
-"Philip Nalangan",
-"CC BY 4.0",
-"https://commons.wikimedia.org/wiki/File:Tegallalang_Rice_Terraces_Bali.jpg",
-"Террасы Тегаллаланг с пальмами"
-],
-"trip:Рисовые террасы Джатилувих": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2d/Jatiluwih_rice_terraces_SF0002.jpg/500px-Jatiluwih_rice_terraces_SF0002.jpg",
-"Stefan Fussan",
-"CC BY-SA 3.0",
-"https://commons.wikimedia.org/wiki/File:Jatiluwih_rice_terraces_SF0002.jpg",
-"Затопленные террасы Джатилувиха"
-],
-"trip:Храм Улун Дану Братан": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/c0/Brantan_Bali_Pura-Ulun-Danu-Bratan-01.jpg/500px-Brantan_Bali_Pura-Ulun-Danu-Bratan-01.jpg",
-"CEphoto, Uwe Aranas",
-"CC BY-SA 3.0",
-"https://commons.wikimedia.org/wiki/File:Brantan_Bali_Pura-Ulun-Danu-Bratan-01.jpg",
-"Пагоды храма на берегу озера Братан"
-],
-"trip:Храм Танах Лот": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Tanah-Lot_Bali_Indonesia_Pura-Tanah-Lot-01.jpg/500px-Tanah-Lot_Bali_Indonesia_Pura-Tanah-Lot-01.jpg",
-"CEphoto, Uwe Aranas",
-"CC BY-SA 3.0",
-"https://commons.wikimedia.org/wiki/File:Tanah-Lot_Bali_Indonesia_Pura-Tanah-Lot-01.jpg",
-"Танах Лот на закате"
-],
-"trip:Храм Улувату и танец кечак": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/20/Cliff_at_Uluwatu_temple%2C_Bali.jpg/500px-Cliff_at_Uluwatu_temple%2C_Bali.jpg",
-"Emma THERY",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Cliff_at_Uluwatu_temple,_Bali.jpg",
-"Обрыв у храма Улувату"
-],
-"trip:Рассвет на вулкане Батур": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/2f/Sunrise_from_Mount_Batur.jpg/500px-Sunrise_from_Mount_Batur.jpg",
-"Aaron Rentfrew",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Sunrise_from_Mount_Batur.jpg",
-"Рассвет с Батура: озеро Батур и вулкан Агунг"
-],
-"trip:Храм Тирта Эмпул": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/8/8a/Pura_Tirta_Empul_2017-08-18_%2831%29.jpg/500px-Pura_Tirta_Empul_2017-08-18_%2831%29.jpg",
-"Panina Manina",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Pura_Tirta_Empul_2017-08-18_(31).jpg",
-"Обряд очищения в священном бассейне"
-],
-"trip:Лес обезьян": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Grooming%2C_Macaca_fascicularis%2C_Ubud_Monkey_Forest%2C_Bali%2C_20220822_1022_9965.jpg/500px-Grooming%2C_Macaca_fascicularis%2C_Ubud_Monkey_Forest%2C_Bali%2C_20220822_1022_9965.jpg",
-"Jakub Hałun",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Grooming,_Macaca_fascicularis,_Ubud_Monkey_Forest,_Bali,_20220822_1022_9965.jpg",
-"Макаки в Лесу обезьян"
-],
-"trip:Храм Лемпуянг — «Врата рая»": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/78/%22Heaven_Gate%22_Pura_Lempuyang.jpg/500px-%22Heaven_Gate%22_Pura_Lempuyang.jpg",
-"Chainwit.",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:%22Heaven_Gate%22_Pura_Lempuyang.jpg",
-"«Врата рая» в храме Лемпуянг"
-],
-"trip:Водный дворец Тирта Ганга": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/c/cd/Tirta_Gangga.jpg/500px-Tirta_Gangga.jpg",
-"S A B R I N A B A L I",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Tirta_Gangga.jpg",
-"Фонтан и сады Тирта Ганги"
-],
-"trip:Храм Бесаких": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/4f/Besakih_Bali_Indonesia_Pura-Besakih-02.jpg/500px-Besakih_Bali_Indonesia_Pura-Besakih-02.jpg",
-"CEphoto, Uwe Aranas",
-"CC BY-SA 3.0",
-"https://commons.wikimedia.org/wiki/File:Besakih_Bali_Indonesia_Pura-Besakih-02.jpg",
-"Главная лестница храма Бесаких"
-],
-"trip:Кампухан Ридж Уолк": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/de/Campuhan_ridge_walk_Ubud_Bali_20120827b.jpg/500px-Campuhan_ridge_walk_Ubud_Bali_20120827b.jpg",
-"Tigerente",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Campuhan_ridge_walk_Ubud_Bali_20120827b.jpg",
-"Тропа по гребню Кампухан"
-],
-"trip:Дельфины в Ловине": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/5/51/Dolphins_and_Sunrise_in_Lovina%2C_Indonesia_Bali_-_panoramio.jpg/500px-Dolphins_and_Sunrise_in_Lovina%2C_Indonesia_Bali_-_panoramio.jpg",
-"Michelle Maria",
-"CC BY 3.0",
-"https://commons.wikimedia.org/wiki/File:Dolphins_and_Sunrise_in_Lovina,_Indonesia_Bali_-_panoramio.jpg",
-"Дельфины на рассвете у Ловины"
-],
-"trip:Alas Harum": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6d/Tegalalang_Rice_Area_in_Alas_Harum.jpg/500px-Tegalalang_Rice_Area_in_Alas_Harum.jpg",
-"Felianiwiki",
-"CC BY 4.0",
-"https://commons.wikimedia.org/wiki/File:Tegalalang_Rice_Area_in_Alas_Harum.jpg",
-"Бассейн над рисовыми террасами Alas Harum"
-],
-"trip:Долина Сидемен": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/49/Sidemen_sawah_countryside_%28Bali%2C_Indonesia_2016%29_%2830039194120%29.jpg/500px-Sidemen_sawah_countryside_%28Bali%2C_Indonesia_2016%29_%2830039194120%29.jpg",
-"Paul Arps from The Netherlands",
-"CC BY 2.0",
-"https://commons.wikimedia.org/wiki/File:Sidemen_sawah_countryside_(Bali,_Indonesia_2016)_(30039194120).jpg",
-"Рисовые поля Сидемена"
-],
-"trip:Мундук": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Munduk_general_MRD_03.jpg/500px-Munduk_general_MRD_03.jpg",
-"Mike Dickison",
-"CC BY 4.0",
-"https://commons.wikimedia.org/wiki/File:Munduk_general_MRD_03.jpg",
-"Вид на долину из Мундука"
-],
-"trip:Озеро Тамблинган": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/0/01/Lake_Tamblingan_-_Bali_S4E2541_%2830019550602%29.jpg/500px-Lake_Tamblingan_-_Bali_S4E2541_%2830019550602%29.jpg",
-"Francesco Veronesi from Italy",
-"CC BY-SA 2.0",
-"https://commons.wikimedia.org/wiki/File:Lake_Tamblingan_-_Bali_S4E2541_(30019550602).jpg",
-"Деревянное каноэ на берегу Тамблингана"
-],
+"club:Karma Beach": ["images/places/club-1592237036346-a2854e60872d.jpg", "Sebastian Puskeiler", "Unsplash", "https://unsplash.com/photos/people-on-beach-during-daytime-Te3JvTcls1I", ""],
+"trip:Рисовые террасы Тегаллаланг": ["images/places/trip-1555400038-63f5ba517a47.jpg", "Niklas Weiss", "Unsplash", "https://unsplash.com/photos/rice-terraces-in-tegelalang-bali--2WlTWZLnRc", ""],
+"trip:Рисовые террасы Джатилувих": ["images/places/trip-1523539693385-e5e891eb4465.jpg", "Claudia Fernández Ortiz", "Unsplash", "https://unsplash.com/photos/hut-in-green-bali-rice-fields-TF1qnG9eZHQ", ""],
+"trip:Храм Улун Дану Братан": ["images/places/trip-1604999333679-b86d54738315.jpg", "Guillaume Marques", "Unsplash", "https://unsplash.com/photos/brown-and-green-temple-near-body-of-water-under-blue-and-white-cloudy-sky-during-daytime-bnMPFPuSCI0", ""],
+"trip:Храм Танах Лот": ["images/places/trip-1588625232507-a337a3bd2e43.jpg", "Mauro-Fabio Cilurzo", "Unsplash", "https://unsplash.com/photos/silhouette-of-trees-on-island-during-sunset-c0kEfxJWtHE", ""],
+"trip:Храм Улувату и танец кечак": ["images/places/trip-1746932715477-85232fcfedf8.jpg", "Qdal Studio", "Unsplash", "https://unsplash.com/photos/a-balinese-dancer-performs-in-a-fire-ceremony-9DWB9SRNqI8", ""],
+"trip:Рассвет на вулкане Батур": ["images/places/trip-1691502692544-24a588f8069c.jpg", "Arya Krisdyantara", "Unsplash", "https://unsplash.com/photos/a-view-of-a-mountain-covered-in-clouds-FAvwsEVD5ps", ""],
+"trip:Храм Тирта Эмпул": ["images/places/trip-1641082918149-24470fe02c39.jpg", "Ismail Hamzah", "Unsplash", "https://unsplash.com/photos/a-group-of-people-sitting-in-a-pool-of-water-2mCc2JV6oeQ", ""],
+"trip:Лес обезьян": ["images/places/trip-1552535978-f91778dbac9e.jpg", "Nick Fewings", "Unsplash", "https://unsplash.com/photos/two-primates-U4YKpkHK1Dc", ""],
+"trip:Храм Лемпуянг — «Врата рая»": ["images/places/trip-1581337516999-ed7dc0fec442.jpg", "cait", "Unsplash", "https://unsplash.com/photos/gray-concrete-cross-on-top-of-gray-concrete-building-aJL7VpiSU_M", ""],
+"trip:Водный дворец Тирта Ганга": ["images/places/trip-1655289112327-5b9c0fcd1995.jpg", "Reena Yadav", "Unsplash", "https://unsplash.com/photos/a-group-of-people-standing-around-a-fountain-with-statues-in-it-e9bhL4zh4KE", ""],
+"trip:Храм Бесаких": ["images/places/trip-1655289112205-d3b56c6b61f8.jpg", "Reena Yadav", "Unsplash", "https://unsplash.com/photos/a-large-temple-with-many-pointed-roofs-x80POGz9YTw", ""],
+"trip:Кампухан Ридж Уолк": ["images/places/trip-1671340440385-f58ddfb8587b.jpg", "Sam Vella", "Unsplash", "https://unsplash.com/photos/a-lush-green-forest-filled-with-lots-of-trees-O0JxmeYb6ZQ", ""],
+"trip:Дельфины в Ловине": ["images/places/trip-1585643734412-05ea85526d11.jpg", "Pascal Müller", "Unsplash", "https://unsplash.com/photos/people-riding-on-white-and-green-boat-on-sea-during-daytime-WDBM22JVApk", ""],
+"trip:Alas Harum": ["images/places/trip-1576475706812-822620fc23ba.jpg", "Darren Lawrence", "Unsplash", "https://unsplash.com/photos/woman-sitting-on-swing-bench-hy_LY9Zyfxo", ""],
+"trip:Долина Сидемен": ["images/places/trip-1558501113-b78fe1bedf02.jpg", "Niklas Weiss", "Unsplash", "https://unsplash.com/photos/trees-growing-on-rice-terraces-during-daytime-RcH-24DlPXE", ""],
+"trip:Мундук": ["images/places/trip-1557093793-d149a38a1be8.jpg", "Radoslav Bali", "Unsplash", "https://unsplash.com/photos/rice-terraces-jN9JnZ-SyVc", ""],
+"trip:Озеро Тамблинган": ["images/places/trip-1788888185913-6a063c7db6a5.jpg", "Arya Krisdyantara", "Unsplash", "https://unsplash.com/photos/lake-and-forest-in-mountain-landscape-zqcJDCa_aCk", ""],
 "trip:Lahangan Sweet": [ "images/lahangan-sweet.jpg", "Caesar Jagaditha", "Unsplash", "https://unsplash.com/photos/g1Ql6vLd984", "Смотровая площадка на дереве Lahangan Sweet", "50% 72%" ],
-"trip:Karang Boma Cliff": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d9/Karang_Boma_Cliff.jpg/500px-Karang_Boma_Cliff.jpg",
-"Pradnyanandana",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Karang_Boma_Cliff.jpg",
-"Вид с мыса Karang Boma на океан"
-],
-"trip:Парк GWK (Garuda Wisnu Kencana)": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/30/Garuda_Wisnu_Kencana_from_below.jpg/500px-Garuda_Wisnu_Kencana_from_below.jpg",
-"Dare2Leap",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Garuda_Wisnu_Kencana_from_below.jpg",
-"Статуя Вишну на Гаруде"
-],
-"trip:Гунунг Кави": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f5/Exploring_Gunung_Kawi%2C_Bali%E2%80%99s_Timeless_Temple.jpg/500px-Exploring_Gunung_Kawi%2C_Bali%E2%80%99s_Timeless_Temple.jpg",
-"Pinterpandai.com",
-"CC BY 3.0",
-"https://commons.wikimedia.org/wiki/File:Exploring_Gunung_Kawi,_Bali%E2%80%99s_Timeless_Temple.jpg",
-"Святилища, высеченные в скале"
-],
-"trip:Дворец Убуда": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f4/Ubud_Palace%2C_Bali%2C_Indonesia%2C_20220822_0904_9820.jpg/500px-Ubud_Palace%2C_Bali%2C_Indonesia%2C_20220822_0904_9820.jpg",
-"Jakub Hałun",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Ubud_Palace,_Bali,_Indonesia,_20220822_0904_9820.jpg",
-"Павильон во дворце Убуда"
-],
-"falls:Водопад Секумпул": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/2/28/Air_Terjun_Sekumpul.jpg/500px-Air_Terjun_Sekumpul.jpg",
-"Nyoman Gita Astadi",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Air_Terjun_Sekumpul.jpg",
-""
-],
-"falls:Kanto Lampo": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7c/Kanto_lampo.jpg/500px-Kanto_lampo.jpg",
-"Lamacchiacosta",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Kanto_lampo.jpg",
-""
-],
-"falls:Gitgit": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/39/Gitgit_Waterfall_-_Indonesia.jpg/500px-Gitgit_Waterfall_-_Indonesia.jpg",
-"Thomas Fuhrmann",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Gitgit_Waterfall_-_Indonesia.jpg",
-""
-],
-"falls:Banyu Wana": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/4/47/Banyu_Wana_Amertha_Waterfall_SF0001.jpg/500px-Banyu_Wana_Amertha_Waterfall_SF0001.jpg",
-"Stefan Fussan",
-"CC BY-SA 3.0",
-"https://commons.wikimedia.org/wiki/File:Banyu_Wana_Amertha_Waterfall_SF0001.jpg",
-""
-],
-"falls:Banyumala": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/77/Banyumala_Waterfall.jpg/500px-Banyumala_Waterfall.jpg",
-"Made agus devayana",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Banyumala_Waterfall.jpg",
-""
-],
-"falls:Leke Leke": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Bali_-_Leke_Leke_Waterfall_%282025%29_-_img_04.jpg/500px-Bali_-_Leke_Leke_Waterfall_%282025%29_-_img_04.jpg",
-"Chainwit.",
-"CC BY 4.0",
-"https://commons.wikimedia.org/wiki/File:Bali_-_Leke_Leke_Waterfall_(2025)_-_img_04.jpg",
-""
-],
-"falls:Водопад Тукад Чепунг": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/12/Tukad_Cepung_Waterfall_%2852462237566%29.jpg/500px-Tukad_Cepung_Waterfall_%2852462237566%29.jpg",
-"Bex Walton from London, England",
-"CC BY 2.0",
-"https://commons.wikimedia.org/wiki/File:Tukad_Cepung_Waterfall_(52462237566).jpg",
-""
-],
-"falls:Водопад Тегенунган": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/f/f1/Tegenungan_Waterfall_2017-08-18_%282%29.jpg/500px-Tegenungan_Waterfall_2017-08-18_%282%29.jpg",
-"Magul",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Tegenungan_Waterfall_2017-08-18_(2).jpg",
-"Вид на водопад сверху"
-],
-"islands:Нуса Лембонган": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6e/Nusa_Lembongan_Dream_Beach.jpg/500px-Nusa_Lembongan_Dream_Beach.jpg",
-"Burmesedays",
-"CC BY-SA 3.0",
-"https://commons.wikimedia.org/wiki/File:Nusa_Lembongan_Dream_Beach.jpg",
-"Пляж Dream Beach на Лембонгане"
-],
-"islands:Острова Гили": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a0/Gili_Islands%2C_Brigantine%2C_Bali_Sea%2C_Indonesia.jpg/500px-Gili_Islands%2C_Brigantine%2C_Bali_Sea%2C_Indonesia.jpg",
-"Vyacheslav Argenberg",
-"CC BY 4.0",
-"https://commons.wikimedia.org/wiki/File:Gili_Islands,_Brigantine,_Bali_Sea,_Indonesia.jpg",
-"Парусник у острова Гили-Мено"
-],
-"islands:Ломбок": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/3/36/Lombok%2C_Island_beach_in_the_bay%2C_Indonesia.jpg/500px-Lombok%2C_Island_beach_in_the_bay%2C_Indonesia.jpg",
-"Vyacheslav Argenberg",
-"CC BY 4.0",
-"https://commons.wikimedia.org/wiki/File:Lombok,_Island_beach_in_the_bay,_Indonesia.jpg",
-"Бухта с пляжем на Ломбоке"
-],
-"islands:Вулканы Бромо и Иджен": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7d/Mount_Bromo_at_sunrise%2C_showing_its_volcanoes_and_Mount_Semeru_%28background%29.jpg/500px-Mount_Bromo_at_sunrise%2C_showing_its_volcanoes_and_Mount_Semeru_%28background%29.jpg",
-"Thomas Hirsch (= user Ravn)",
-"CC BY-SA 3.0",
-"https://commons.wikimedia.org/wiki/File:Mount_Bromo_at_sunrise,_showing_its_volcanoes_and_Mount_Semeru_(background).jpg",
-"Вулкан Бромо на рассвете, вдали — Семеру"
-],
-"islands:Национальный парк Комодо": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/7/7b/Padar_Island%2C_Komodo_National_Park%2C_Indonesia%2C_20250822_0929_2659.jpg/500px-Padar_Island%2C_Komodo_National_Park%2C_Indonesia%2C_20250822_0929_2659.jpg",
-"Jakub Hałun",
-"CC BY 4.0",
-"https://commons.wikimedia.org/wiki/File:Padar_Island,_Komodo_National_Park,_Indonesia,_20250822_0929_2659.jpg",
-"Остров Падар со смотровой"
-],
-"islands:Нуса Пенида": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/1/11/Kelingking_Beach_%28T-Rex_Bay%29_of_Nusa_Penida%2C_Bali_%282025%29_-_img_08.jpg/500px-Kelingking_Beach_%28T-Rex_Bay%29_of_Nusa_Penida%2C_Bali_%282025%29_-_img_08.jpg",
-"Chainwit.",
-"CC BY 4.0",
-"https://commons.wikimedia.org/wiki/File:Kelingking_Beach_(T-Rex_Bay)_of_Nusa_Penida,_Bali_(2025)_-_img_08.jpg",
-"Пляж Келингкинг — скала-«динозавр»"
-],
-"islands:Остров Менджанган": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e5/Pantai_di_Pulau_Menjangan_-_TN_Bali_Barat.jpg/500px-Pantai_di_Pulau_Menjangan_-_TN_Bali_Barat.jpg",
-"Winsonchu95",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Pantai_di_Pulau_Menjangan_-_TN_Bali_Barat.jpg",
-"Пляж на острове Менджанган"
-],
+"trip:Karang Boma Cliff": ["images/places/trip-1653189382451-03f0d5179d60.jpg", "Norbert Braun", "Unsplash", "https://unsplash.com/photos/a-view-of-the-ocean-from-the-top-of-a-cliff-EuZaXCpurS8", ""],
+"trip:Парк GWK (Garuda Wisnu Kencana)": ["images/places/trip-1627729115363-e193813c19e7.jpg", "Filippo Cesarini", "Unsplash", "https://unsplash.com/photos/gray-concrete-statue-under-blue-sky-during-daytime-s24I7lrzwOY", ""],
+"trip:Гунунг Кави": ["images/places/trip-1606311431266-e67ef1fc8b58.jpg", "Robin Canfield", "Unsplash", "https://unsplash.com/photos/brown-concrete-statues-on-green-grass-field-during-daytime-7gou9YXqObE", ""],
+"trip:Дворец Убуда": ["images/places/trip-1681858838158-1b6297686fe1.jpg", "weyfoto loh", "Unsplash", "https://unsplash.com/photos/a-large-building-with-a-clock-on-the-front-of-it-aEr29oY9U9w", ""],
+"falls:Водопад Секумпул": ["images/places/falls-1665747942883-5330b27077ec.jpg", "junot adiputra", "Unsplash", "https://unsplash.com/photos/a-waterfall-in-a-forest-dy97EPdb9F0", ""],
+"falls:Kanto Lampo": ["images/places/falls-1557652941-43892b86cd93.jpg", "Fransiskus Filbert Mangundap", "Unsplash", "https://unsplash.com/photos/woman-in-white-monokini-sitting-on-rock-f_0nTK31xjs", ""],
+"falls:Gitgit": ["images/places/falls-1523952578875-e6bb18b26645.jpg", "Oliver Sjöström", "Unsplash", "https://unsplash.com/photos/man-standing-on-top-of-rock-near-waterfalls-ITRnilDKqGs", ""],
+"falls:Banyu Wana": ["images/places/falls-1690642716617-5fae66a8753b.jpg", "Sneha Chandrashekar", "Unsplash", "https://unsplash.com/photos/a-waterfall-with-lots-of-green-plants-growing-on-it-76X2AgnhAL8", ""],
+"falls:Banyumala": ["images/places/falls-1676077087620-4ad7eb632b05.jpg", "Ryan Brayoga", "Unsplash", "https://unsplash.com/photos/a-waterfall-with-green-plants-growing-on-the-side-of-it-K32h_E9d9Do", ""],
+"falls:Leke Leke": ["images/places/falls-1564500595005-da9abf8b4045.jpg", "SLNC", "Unsplash", "https://unsplash.com/photos/green-waterfall-QaQGXOrnWa8", ""],
+"falls:Водопад Тукад Чепунг": ["images/places/falls-1591002503367-c040644bc2d7.jpg", "Indre Velaviciute", "Unsplash", "https://unsplash.com/photos/woman-in-white-shirt-sitting-on-water-falls-during-daytime-ll3LhRv-dPo", ""],
+"falls:Водопад Тегенунган": ["images/places/falls-1595319100995-e350a1095086.jpg", "Shravan Yelburgi", "Unsplash", "https://unsplash.com/photos/people-sitting-on-rock-near-waterfalls-during-daytime-cWEkGVGwRDo", ""],
+"islands:Нуса Лембонган": ["images/places/islands-1620034441342-0287f2b0f91b.jpg", "Danny de Groot", "Unsplash", "https://unsplash.com/photos/people-swimming-on-beach-during-daytime-2ZJxGgv-Hww", ""],
+"islands:Острова Гили": ["images/places/islands-1587364125669-354c5735dd2d.jpg", "mtsjrdl", "Unsplash", "https://unsplash.com/photos/aerial-view-of-green-trees-and-body-of-water-during-daytime-9y5uMwQKJzc", ""],
+"islands:Ломбок": ["images/places/islands-1724063382622-67e2c59395b6.jpg", "Filipe Freitas", "Unsplash", "https://unsplash.com/photos/a-large-green-mountain-with-a-valley-in-the-foreground-BbROlV1pvaM", ""],
+"islands:Вулканы Бромо и Иджен": ["images/places/islands-1518043610038-064362b44076.jpg", "Thomas Ciszewski", "Unsplash", "https://unsplash.com/photos/aerial-photography-of-volcano-VcpMPsf_Ex0", ""],
+"islands:Национальный парк Комодо": ["images/places/islands-1725073696774-dc3c2dc0a35e.jpg", "Vivien Placzek", "Unsplash", "https://unsplash.com/photos/a-large-lizard-sitting-on-top-of-a-sandy-beach-B44J90o9Pow", ""],
+"islands:Нуса Пенида": ["images/places/islands-1541666282672-5f4aad922c63.jpg", "Nattu Adnan", "Unsplash", "https://unsplash.com/photos/an-aerial-view-of-a-sandy-beach-with-two-large-rocks-sticking-out-of-the-water-heRhwTIZrcc", ""],
+"islands:Остров Менджанган": ["images/places/islands-1508245740873-1a4820efedf8.jpg", "Jannes Glas", "Unsplash", "https://unsplash.com/photos/brown-and-white-sea-shells-in-shallow-focus-photography-shhklEpCc4k", ""],
 "food:Mozaic": [
 "https://thumb.wikimedia.org/wikipedia/commons/thumb/4/43/Cooking_Class_at_Mozaic_%288056044088%29.jpg/500px-Cooking_Class_at_Mozaic_%288056044088%29.jpg",
 "Sally May Mills / Ubud Writers & Readers Festival",
@@ -2104,13 +1790,7 @@ const PHOTOS = {
 "https://commons.wikimedia.org/wiki/File:Shady_Shack.jpg",
 "Вход в кафе"
 ],
-"bars:Rock Bar": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/6/6a/The_Rock_Bar_Bali_%287373608196%29.jpg/500px-The_Rock_Bar_Bali_%287373608196%29.jpg",
-"Simon_sees from Australia",
-"CC BY 2.0",
-"https://commons.wikimedia.org/wiki/File:The_Rock_Bar_Bali_(7373608196).jpg",
-"Бар на скалах над океаном в вечерний час"
-],
+"bars:Rock Bar": ["images/places/bars-1568006594561-f930c381bf93.jpg", "Minh Trần", "Unsplash", "https://unsplash.com/photos/brown-wooden-beach-dock-1HKJWhHQRCs", ""],
 "coffee:SATRIA Luwak Kopi": [
 "https://thumb.wikimedia.org/wikipedia/commons/thumb/8/89/Trying_different_coffee_varieties_and_flavours_-_Satria_coffee_plantation_%2817056471192%29.jpg/500px-Trying_different_coffee_varieties_and_flavours_-_Satria_coffee_plantation_%2817056471192%29.jpg",
 "Jorge Láscar from Melbourne, Australia",
@@ -2139,13 +1819,7 @@ const PHOTOS = {
 "https://commons.wikimedia.org/wiki/File:Karma_Kandara_Resort_(di_Mare_Restaurant)_hillside_view.jpg",
 "Курорт Karma Kandara на скалах Унгасана: вид на океан"
 ],
-"exp:Выпустить черепашат в океан": [
-"https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a2/Sea_turtles_prepared_for_release_to_the_sea_on_Kuta_Beach%2C_Bali%2C_20220825_1651_0852.jpg/500px-Sea_turtles_prepared_for_release_to_the_sea_on_Kuta_Beach%2C_Bali%2C_20220825_1651_0852.jpg",
-"Jakub Hałun",
-"CC BY-SA 4.0",
-"https://commons.wikimedia.org/wiki/File:Sea_turtles_prepared_for_release_to_the_sea_on_Kuta_Beach,_Bali,_20220825_1651_0852.jpg",
-"Черепашата перед выпуском в океан на пляже Кута"
-]
+"exp:Выпустить черепашат в океан": ["images/places/exp-1523340306477-76c135412b28.jpg", "Gabrielle Cepella", "Unsplash", "https://unsplash.com/photos/closeup-photo-of-brown-and-black-turtle-floating-on-body-of-water-TRPTadHnCQs", ""]
 }
 
 // Instagram мест: ключ «раздел:название» → аккаунт
