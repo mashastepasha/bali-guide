@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261111-1330">
+<meta name="build" content="20261111-1500">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -700,10 +700,24 @@ document.head.append(Object.assign(document.createElement('style'), { textConten
 <footer>Цены и часы — ориентир на 2026 год, на месте могут отличаться. Доллары — по курсу 1 $ ≈ 16 500 Rp; 1 BYN ≈ 5 000 Rp.<br>Фон — мех тигра, фото <a href="https://commons.wikimedia.org/wiki/File:Tiger_Stripes_(29808869755).jpg" target="_blank" rel="noopener">Mathias Appel</a>, CC0. Принты — животные Бали: тигр, черепаха, манта, питон, геккон, макака, мусанг и балийский скворец.<br><button class="cubtoggle" hidden>🐯 Вернуть Балийского тигруса</button></footer>
 
 <script>
+// ── Настройки гайда: для нового гайда (другая страна) меняйте здесь ──
+const GUIDE = {
+  place:'Bali',               // добавляется к поиску в Google Картах («На карте»)
+  tagSuffix:'bali',           // дописывается к слишком коротким хэштегам Instagram
+  mapCenter:[-8.55, 115.2],   // стартовый центр «Карты рядом»
+  mapZoom:9,
+  kmh:32,                     // средняя скорость по дорогам для маршрута (Бали — медленно)
+  store:'bali',               // префикс памяти браузера: у разных гайдов на одном адресе — разный
+}
+const LS = name => GUIDE.store + '-' + name
 // ── Облако ───────────────────────────────────────────────────
 const SUPABASE_URL = 'https://vpnlzraqzdnzzudzmqua.supabase.co'
 const SUPABASE_KEY = 'sb_publishable_8u_fdPeNGcmQVlpA6iaI9g_XLX9AYGu'
-const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { flowType:'implicit', detectSessionInUrl:true, persistSession:true } })
+// Пока облако не подключено (SUPABASE_URL пустой) — заглушка: гайд работает, «Мой список» просто не сохраняется
+const noCloud = (() => { const r = { data:null, error:{ message:'Облако ещё не подключено' } }, q = new Proxy(function () {}, { get:(t, p) => p === 'then' ? res => res(r) : q, apply:() => q }); return q })()
+const db = SUPABASE_URL ? supabase.createClient(SUPABASE_URL, SUPABASE_KEY, { auth: { flowType:'implicit', detectSessionInUrl:true, persistSession:true } })
+  : { from:() => noCloud, auth:new Proxy({}, { get:(t, p) => p === 'onAuthStateChange' ? () => ({ data:{ subscription:{ unsubscribe() {} } } })
+      : p === 'getSession' ? async () => ({ data:{ session:null } }) : async () => ({ data:{ user:null, session:null }, error:{ message:'Облако ещё не подключено' } }) }) }
 
 // ── Содержимое ───────────────────────────────────────────────
 // p(название, район, часы, цена, [особенности])
@@ -1908,7 +1922,7 @@ function drawMap() {
   const dot = (p, big) => L.circleMarker([p.lat, p.lng], { radius: big ? 11 : 7, color: big ? '#2B1D14' : '#fff', weight: big ? 3 : 2, fillColor: MAP_CATS[p.cat].color, fillOpacity: p.exact ? .95 : .55 }).bindPopup(pop(p)).addTo(lmapLayer)
   if (!center) {
     places.forEach(p => dot(p))
-    lmap.setView([-8.55, 115.2], 9)
+    lmap.setView(GUIDE.mapCenter, GUIDE.mapZoom)
     near.innerHTML = `<div class="empty">Выберите место в поле выше или нажмите «📍 Рядом со мной» — здесь появится список того, что рядом</div>`
     return
   }
@@ -1977,7 +1991,7 @@ const ownFeats = fs => isOwner() ? fs : fs.filter(x => !/^Из вашей под
 const view = document.getElementById('view')
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))
 const keyOf = (sec, it) => sec.id + ':' + it.title
-const mapUrl = (title, area) => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(title + ', ' + area + ', Bali')
+const mapUrl = (title, area) => 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(title + ', ' + area + ', ' + GUIDE.place)
 
 function renderTabs() {
   setTimeout(updArrows, 0)
@@ -2028,7 +2042,7 @@ function igTag(sec, it) {
   if (TAGS[k]) return TAGS[k]
   if (NO_TAG.includes(sec.id) || /[а-яё]/i.test(it.title)) return ''
   const t = it.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
-  return t.length < 4 ? '' : t.length < 8 && !t.includes('bali') ? t + 'bali' : t
+  return t.length < 4 ? '' : t.length < 8 && !t.includes(GUIDE.tagSuffix) ? t + GUIDE.tagSuffix : t
 }
 // ── 🧭 Маршрут ───────────────────────────────────────────────
 // Обязательные места + сколько времени → гайд раскладывает их по дням (каждый день — выезд от вашего жилья и обратно),
@@ -2045,14 +2059,14 @@ const ISLAND_DAYS = { 'islands:Нуса Пенида':1, 'islands:Нуса Ле�
 const DAY_MIN = 600, HALF_MIN = 300, DAY_END = 18 * 60   // день — до 18:00 (по темноте в горах ездить не стоит), полдня — 5 часов
 const ROUTE_STARTS = [6, 7, 8, 9, 10, 11]                  // во сколько выезжаете (часы)
 const routeStart = () => (route.start || 8) * 60
-let route = (() => { try { return JSON.parse(localStorage.getItem('bali-route')) } catch (e) { return null } })() || { must:[], days:1, base:'Чангу', skip:[] }
+let route = (() => { try { return JSON.parse(localStorage.getItem(LS('route'))) } catch (e) { return null } })() || { must:[], days:1, base:'Чангу', skip:[] }
 route.skip = route.skip || []
-const saveRoute = () => { try { localStorage.setItem('bali-route', JSON.stringify(route)) } catch (e) {} }
+const saveRoute = () => { try { localStorage.setItem(LS('route'), JSON.stringify(route)) } catch (e) {} }
 const routeSec = k => SECTIONS.find(s => s.id === k.split(':')[0])
 const routeItem = k => { const s = routeSec(k); return s && s.items.find(i => keyOf(s, i) === k) }
 const routePt = k => { const c = MAP_COORDS[k]; return c ? { lat:c[0], lng:c[1] } : null }
 const routeBase = () => route.base === '__me' && route.me ? route.me : (b => ({ lat:b[0], lng:b[1] }))(ROUTE_BASES[route.base] || ROUTE_BASES['Чангу'])
-const driveMin = (a, b) => { const d = kmBetween(a, b); return d < 0.4 ? 3 : Math.round(d * 1.35 / 32 * 60 + 10) }   // дороги Бали: ~32 км/ч + парковка
+const driveMin = (a, b) => { const d = kmBetween(a, b); return d < 0.4 ? 3 : Math.round(d * 1.35 / GUIDE.kmh * 60 + 10) }   // ~км по дорогам / средняя скорость + парковка
 const visitMin = k => VISIT_OVR[k] || VISIT_MIN[k.split(':')[0]] || 90
 const hm = m => m < 60 ? m + ' мин' : (h => (Number.isInteger(h) ? h : h.toFixed(1).replace('.', ',')) + ' ч')(Math.round(m / 30) / 2)
 const clock = m => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0')
@@ -2334,9 +2348,9 @@ function renderRoute() {
         ${favLeft.length ? `<button class="btn" data-rfavall="1">⭐ Добавить все из моего списка (${favLeft.length})</button>` : ''}
         <input id="rq" placeholder="Найти: Танах Лот, Убуд, водопад…" autocomplete="off"><div class="rlist">${listHtml}</div></details>
       <h4>✨ Что ещё подсказывать рядом</h4>
-      <div class="chips">${['beach', 'trip', 'falls', 'kids'].map(id => { const sc = SECTIONS.find(x => x.id === id), on = !(route.noSugg || []).includes(id)
+      <div class="chips">${ROUTE_SECS.filter(id => id !== 'islands' && SECTIONS.some(x => x.id === id)).map(id => { const sc = SECTIONS.find(x => x.id === id), on = !(route.noSugg || []).includes(id)
         return `<button class="chip ${on ? 'on' : ''}" data-rsugg="${id}">${on ? '✓ ' : ''}${sc.icon} ${esc(sc.name)}</button>` }).join('')}</div>
-      ${['beach', 'trip', 'falls', 'kids'].every(id => (route.noSugg || []).includes(id)) ? '<p class="rnote">Подсказки выключены — в плане только ваши места.</p>' : ''}
+      ${ROUTE_SECS.filter(id => id !== 'islands').every(id => (route.noSugg || []).includes(id)) ? '<p class="rnote">Подсказки выключены — в плане только ваши места.</p>' : ''}
       ${route.skip.length ? `<p class="rnote">Скрыто из подсказок: ${route.skip.length}. <button class="linkbtn" data-rskipclear="1">Вернуть</button></p>` : ''}
     </div>
     ${plan ? `<h3>Ваш план · ${esc(ROUTE_TIMES.find(x => x[0] === route.days)[1])} · от: ${esc(baseName)}${plan.trip ? ' · с ночёвками в пути' : ''}</h3>
@@ -2389,7 +2403,7 @@ function renderHome() {
 
 // Отметки чек-листа хранятся на этом устройстве
 let checked = {}
-try { checked = JSON.parse(localStorage.getItem('bali-check') || '{}') } catch (e) {}
+try { checked = JSON.parse(localStorage.getItem(LS('check')) || '{}') } catch (e) {}
 
 // Чек-лист с группами; prefix отделяет отметки разных списков
 function checkList(list, prefix) {
@@ -2712,7 +2726,7 @@ document.addEventListener('change', e => {
   const c = e.target.closest('[data-check]')
   if (c) {
     checked[c.dataset.check] = c.checked
-    try { localStorage.setItem('bali-check', JSON.stringify(checked)) } catch (err) {}
+    try { localStorage.setItem(LS('check'), JSON.stringify(checked)) } catch (err) {}
     const y = window.scrollY; render(); window.scrollTo(0, y)
   }
 })
@@ -2801,7 +2815,7 @@ async function mergeAfterLogin() {
   if (!me || me.is_anonymous) return
   let saved = null
   // забираем сохранённый список сразу — чтобы перенос не сработал дважды
-  try { saved = JSON.parse(localStorage.getItem('bali-merge') || 'null'); localStorage.removeItem('bali-merge') } catch (e) {}
+  try { saved = JSON.parse(localStorage.getItem(LS('merge')) || 'null'); localStorage.removeItem(LS('merge')) } catch (e) {}
   if (!saved) return
   const { data } = await db.from('entries').select('entity_type,data')
   const have = new Set((data || []).map(r => r.entity_type + ':' + (r.data.key || r.data.title)))
@@ -2833,7 +2847,7 @@ async function setName(name) {
 }
 // Запоминаем список этого устройства, чтобы после входа добавить его в общий
 function rememberForMerge() {
-  try { localStorage.setItem('bali-merge', JSON.stringify([...favs, ...places, ...routes].map(r => ({ entity_type: favs.includes(r) ? 'fav' : routes.includes(r) ? 'route' : 'place', data:r.data })))) } catch (e) {}
+  try { localStorage.setItem(LS('merge'), JSON.stringify([...favs, ...places, ...routes].map(r => ({ entity_type: favs.includes(r) ? 'fav' : routes.includes(r) ? 'route' : 'place', data:r.data })))) } catch (e) {}
 }
 const authMsg = m => /invalid login/i.test(m) ? '⚠️ Неверная почта или пароль. Если вы входили по ссылке из письма и ещё не задавали пароль — войдите по ссылке и задайте пароль здесь же.'
   : /already registered|already been registered/i.test(m) ? '⚠️ Эта почта уже зарегистрирована — нажмите «Войти» (или «прислать ссылку», если пароля нет)'
@@ -2902,7 +2916,7 @@ const CUB_TIPS = [
   'Побывали в месте? В «Моём списке» нажмите кружок слева — оно зачеркнётся ✅',
   'Часть пляжей с сильным течением — смотрите на красные флаги 🚩',
 ]
-const cubOff = () => { try { return localStorage.getItem('bali-cub') === 'off' } catch (e) { return false } }
+const cubOff = () => { try { return localStorage.getItem(LS('cub')) === 'off' } catch (e) { return false } }
 const calmMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
 // cubAnchor — карточка, на которой сидит тигрус, и сдвиг от её левого края
 let cubEl = null, cubPos = null, cubAnchor = null, cubTimer = 0, cubBusy = false, cubTip = -1, cubRaf = 0, cubRaf2 = 0
@@ -3022,7 +3036,7 @@ function cubTalk() {
   const b = cubEl.querySelector('.bubble')
   if (b.classList.contains('show')) return b.classList.remove('show')
   // при первом знакомстве тигрус представляется, дальше — советы
-  let met = false; try { met = localStorage.getItem('bali-cub-met') === '1'; localStorage.setItem('bali-cub-met', '1') } catch (e) {}
+  let met = false; try { met = localStorage.getItem(LS('cub-met')) === '1'; localStorage.setItem(LS('cub-met'), '1') } catch (e) {}
   if (met || cubTip >= 0) cubTip = (cubTip + 1 + Math.floor(Math.random() * (CUB_TIPS.length - 1))) % CUB_TIPS.length
   const text = met || cubTip >= 0 ? CUB_TIPS[cubTip] : 'Привет! Я Балийский тигрус 🐯 Прыгаю по гайду и подсказываю. Нажимайте на меня — расскажу ещё что-нибудь полезное про Бали.'
   if (!met && cubTip < 0) cubTip = Math.floor(Math.random() * CUB_TIPS.length)
@@ -3036,11 +3050,11 @@ function cubTalk() {
 }
 document.addEventListener('click', e => {
   if (e.target.closest('[data-cubhide]')) {
-    try { localStorage.setItem('bali-cub', 'off') } catch (err) {}
+    try { localStorage.setItem(LS('cub'), 'off') } catch (err) {}
     cancelAnimationFrame(cubRaf); cubStop(); cubEl.remove(); cubEl = null; cubAnchor = null; cubPos = null; clearTimeout(cubTimer); document.querySelectorAll('.cubtoggle').forEach(b => b.hidden = false); return
   }
   if (e.target.closest('.cubtoggle')) {
-    try { localStorage.removeItem('bali-cub') } catch (err) {}
+    try { localStorage.removeItem(LS('cub')) } catch (err) {}
     e.target.closest('.cubtoggle').hidden = true; cubInit(); return
   }
   if (cubEl && e.target.closest('.hopper .cub-body')) cubTalk()
@@ -3063,8 +3077,8 @@ async function checkUpdate() {
   try {
     const r = await fetch(location.pathname + '?check=' + Date.now(), { cache:'no-store' })
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/)
-    if (!m || m[1] === BUILD || sessionStorage.getItem('bali-upd') === m[1]) return
-    sessionStorage.setItem('bali-upd', m[1])
+    if (!m || m[1] === BUILD || sessionStorage.getItem(LS('upd')) === m[1]) return
+    sessionStorage.setItem(LS('upd'), m[1])
     location.replace(location.pathname + '?v=' + m[1] + location.hash)
   } catch (e) {}
 }
