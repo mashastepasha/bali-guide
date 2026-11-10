@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261111-0030">
+<meta name="build" content="20261111-0230">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -391,6 +391,18 @@
   .rstop .rx { border:0; background:#F3E7D3; border-radius:8px; padding:3px 8px; font-size:12px; cursor:pointer; margin:3px 4px 0 0; }
   .rstay { background:#EEF4FB; border-radius:12px; padding:9px 11px; margin:8px 0 4px; font-size:14px; }
   .rstay .btn { display:inline-block; margin-top:6px; }
+  .rsaved { display:flex; flex-direction:column; gap:6px; padding:10px 0; border-top:1px solid var(--line); }
+  .rsaved:first-of-type { border-top:0; }
+  .rsaved b { font-size:15.5px; } .rsaved small { display:block; color:var(--muted); font-size:12.5px; margin-top:2px; }
+  .rsbtn { display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 12px; }
+  .rsbtn .btn.on { background:#5E9E2F; color:#fff; }
+  .btn.rsave { display:block; width:100%; font-size:16px; font-weight:700; padding:12px; margin:4px 0 8px; background:var(--ink); color:#fff; border:0; }
+  .rcmp { overflow-x:auto; margin:0 0 10px; }
+  .rcmp table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; font-size:13.5px; }
+  .rcmp th, .rcmp td { border-bottom:1px solid var(--line); padding:8px; text-align:left; vertical-align:top; }
+  .rcmp tr:first-child th { background:var(--ink); color:#fff; }
+  .rcmp th:first-child { width:24%; color:var(--muted); font-weight:700; }
+  .rcmp td.win { background:#E6F2DC; font-weight:700; }
   .rtot { font-size:13px; color:var(--muted); margin:6px 0 8px; }
   .rwarn { background:#FFF1C9; color:#7A5A1E; border-radius:12px; padding:10px 12px; margin:0 0 12px; font-size:14px; }
   .rnote { font-size:13px; color:var(--muted); }
@@ -2172,7 +2184,112 @@ function gmapsDay(d) {
   const ll = p => p.lat + ',' + p.lng, pts = d.order.map(routePt), dest = d.end || pts[pts.length - 1], way = d.end ? pts : pts.slice(0, -1)
   return 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + ll(d.start) + '&destination=' + ll(dest) + (way.length ? '&waypoints=' + encodeURIComponent(way.slice(0, 9).map(ll).join('|')) : '')
 }
+// ── Сохранённые маршруты: снимок плана (не меняется, даже если гайд обновится), в облаке пользователя ──
+let routes = [], routeView = null, routeCmpA = ''
+const routeNameDef = () => `${ROUTE_TIMES.find(x => x[0] === route.days)[1]} от ${route.base === '__me' ? 'моего места' : route.base} · ${new Date().toLocaleDateString('ru-RU', { day:'numeric', month:'long' })}`
+function snapPlan(plan) {
+  return { trip:plan.trip, cap:plan.cap, warn:plan.warn, isles:plan.isles.map(x => x.island),
+    days:plan.days.map(d => ({ start:d.start, end:d.end, order:d.order, startHome:!!d.startHome, free:!!d.free, cost:d.cost })) }
+}
+async function saveRouteCloud() {
+  const plan = planRoute(); if (!plan) return
+  const name = prompt('Как назвать маршрут?', routeNameDef()); if (name === null) return
+  const data = { key:'r' + Date.now(), name:(name.trim() || routeNameDef()).slice(0, 60), created:new Date().toISOString(),
+    params:{ must:[...route.must], days:route.days, base:route.base, me:route.me || null, stay:route.stay || 'home', skip:[...route.skip] },
+    baseName:route.base === '__me' ? 'моего места' : route.base, plan:snapPlan(plan) }
+  const tmp = { id:'tmp' + Date.now(), entity_type:'route', data }; routes = [...routes, tmp]
+  const y = scrollY; render(); scrollTo(0, y)
+  const { data:rows, error } = await db.from('entries').insert({ entity_type:'route', data }).select()
+  if (error) { routes = routes.filter(r => r !== tmp); toast('⚠️ Не получилось сохранить — проверьте интернет'); const y2 = scrollY; render(); scrollTo(0, y2); return }
+  routes = routes.map(r => r === tmp ? rows[0] : r)
+  toast('💾 Маршрут «' + data.name + '» сохранён — он в «Мои маршруты»')
+}
+async function deleteRouteCloud(id) {
+  const r = routes.find(x => String(x.id) === String(id)); if (!r) return
+  if (!confirm('Удалить маршрут «' + r.data.name + '»? Вернуть его будет нельзя.')) return
+  routes = routes.filter(x => x !== r); if (routeView && routeView.open === String(id)) routeView = null
+  const y = scrollY; render(); scrollTo(0, y)
+  await db.from('entries').delete().eq('id', r.id)
+}
+async function renameRouteCloud(id) {
+  const r = routes.find(x => String(x.id) === String(id)); if (!r) return
+  const name = prompt('Новое название маршрута', r.data.name); if (!name || !name.trim()) return
+  r.data = { ...r.data, name:name.trim().slice(0, 60) }; const y = scrollY; render(); scrollTo(0, y)
+  await db.from('entries').update({ data:r.data }).eq('id', r.id)
+}
+const routeStats = p => {
+  const stops = p.days.reduce((a, d) => a + d.order.length, 0), visit = p.days.reduce((a, d) => a + d.order.reduce((b, k) => b + visitMin(k), 0), 0)
+  const all = p.days.reduce((a, d) => a + (d.cost || 0), 0)
+  return { stops, visit, drive:Math.max(0, all - visit), nights:p.trip ? Math.max(0, p.days.length - 1) : 0 }
+}
+// Отрисовка плана по дням (общая для конструктора, сохранённого маршрута и сравнения)
+function planHtml(plan, mustSet, ro) {
+  let dayN = 0
+  const dayHtml = (d, i, all) => {
+    dayN++
+    let t = d.order[0] === 'trip:Рассвет на вулкане Батур' ? 2 * 60 : 8 * 60, p = d.start, n = 0
+    const prevLast = i > 0 && all[i - 1].order.length ? routeItem(all[i - 1].order.slice(-1)[0]) : null
+    const from = d.startHome ? '🏠 Выезд из дома' : '🛏 Выезд после ночёвки' + (prevLast ? ' — ' + esc(prevLast.area) : '')
+    const rows = d.order.filter(routeItem).map(k => { const it = routeItem(k), q = routePt(k), dm = driveMin(p, q); t += dm; const arrive = t; t += visitMin(k); p = q; n++
+      const extra = !mustSet.has(k)
+      return `<div class="rleg">🚗 ~${hm(dm)} в пути</div>
+        <div class="rstop ${extra ? 'extra' : ''}"><i>${n}</i><div><a href="#" data-mopen="${esc(k)}">${esc(it.title)}</a>
+          <small>${clock(arrive)}–${clock(t)} · ~${hm(visitMin(k))} · 📍 ${esc(it.area)}${extra ? ' · ✨ рядом, если будут силы' : ''}</small>
+          ${extra && !ro ? `<button class="rx" data-rmust="${esc(k)}">＋ В обязательные</button><button class="rx" data-rskip="${esc(k)}">✕ Не хочу</button>` : ''}</div></div>` }).join('')
+    const back = d.end && d.order.length ? driveMin(p, d.end) : 0
+    const tail = !d.order.length ? `<p class="rnote">Свободный день${d.end ? ' — дорога домой ~' + hm(costPath(d.start, [], d.end)) : ''}.</p>`
+      : d.end ? `<div class="rleg">🏠 ~${hm(back)} домой · дома около ${clock(t + back)}</div>` : stayHint(d.order[d.order.length - 1])
+    return `<div class="rday"><b>День ${dayN}${plan.cap === HALF_MIN ? ' (полдня)' : ''}<small>${d.free ? 'свободный — предлагаем' : ''}</small></b><div class="rin">
+      <div class="rleg">${from} · ${d.order[0] === 'trip:Рассвет на вулкане Батур' ? '2:00' : '8:00'}</div>${rows}${tail}
+      ${d.order.length ? `<div class="rtot">Итого ~${hm(d.cost)} из ${hm(plan.cap)}${plan.cap - d.cost > 90 ? ' — остаётся время на пляж или кафе' : ''}</div>
+      <a class="btn" href="${gmapsDay(d)}" target="_blank" rel="noopener">🗺️ Маршрут дня в Google Картах</a>` : ''}</div></div>` }
+  const isleHtml = x => { const k = x.island || x, it = routeItem(k); if (!it) return ''; dayN += ISLAND_DAYS[k]
+    return `<div class="rday"><b>${ISLAND_DAYS[k] > 1 ? `Дни ${dayN - ISLAND_DAYS[k] + 1}–${dayN}` : `День ${dayN}`}<small>поездка</small></b><div class="rin">
+      <div class="rstop"><i>⛵</i><div><a href="#" data-mopen="${esc(k)}">${esc(it.title)}</a><small>~${ISLAND_DAYS[k]} ${ISLAND_DAYS[k] === 1 ? 'день' : ISLAND_DAYS[k] < 5 ? 'дня' : 'дней'} · ${esc(it.hours)}</small>
+      <small>${esc(it.feats.slice(0, 2).join(' · '))}</small></div></div></div></div>` }
+  return plan.warn.map(w => `<div class="rwarn">⚠️ ${esc(w)}</div>`).join('') + plan.isles.map(isleHtml).join('') + plan.days.map(dayHtml).join('')
+}
+function routeMeta(r) {
+  const p = r.data.plan, st = routeStats(p), dn = p.days.length + p.isles.reduce((a, k) => a + (ISLAND_DAYS[k] || 0), 0)
+  return `${dn} ${dn === 1 ? 'день' : dn < 5 ? 'дня' : 'дней'} · от ${esc(r.data.baseName)}${p.trip ? ' · с ночёвками' : ''} · ${st.stops} ${placesWord(st.stops)}${p.isles.length ? ' + острова' : ''} · в дороге ~${hm(st.drive)}`
+}
+function savedListHtml() {
+  if (!routes.length) return ''
+  return `<div class="rbox"><h4>💾 Мои маршруты</h4>${routeCmpA ? `<p class="rnote">⚖️ Выберите второй маршрут для сравнения с «${esc((routes.find(x => String(x.id) === routeCmpA) || { data:{ name:'' } }).data.name)}» или <button class="linkbtn" data-rcmpcancel="1">отмените</button>.</p>` : ''}
+    ${routes.map(r => `<div class="rsaved"><div><b>${esc(r.data.name)}</b><small>${routeMeta(r)}</small></div><div class="rsbtn">
+      <button class="btn" data-ropen="${r.id}">👁 Открыть</button><button class="btn" data-redit="${r.id}">✏️ Изменить</button>
+      ${routeCmpA && routeCmpA !== String(r.id) ? `<button class="btn on" data-rcmp="${r.id}">⚖️ Сравнить с этим</button>` : routes.length > 1 && !routeCmpA ? `<button class="btn" data-rcmp="${r.id}">⚖️ Сравнить</button>` : ''}
+      <button class="btn" data-rren="${r.id}">Переименовать</button><button class="btn" data-rdel="${r.id}">🗑</button></div></div>`).join('')}</div>`
+}
+function compareHtml(a, b) {
+  const A = a.data.plan, B = b.data.plan, sa = routeStats(A), sb = routeStats(B)
+  const daysOf = p => [...p.isles.map(k => '⛵ ' + (routeItem(k) || { title:k }).title), ...p.days.map(d => d.order.filter(routeItem).map(k => routeItem(k).title).join(' → ') || 'свободный день')]
+  const da = daysOf(A), db2 = daysOf(B), n = Math.max(da.length, db2.length)
+  const row = (h, x, y, better) => `<tr><th>${h}</th><td${better === 1 ? ' class="win"' : ''}>${x}</td><td${better === 2 ? ' class="win"' : ''}>${y}</td></tr>`
+  const cmpLess = (x, y) => { x = Math.round(x / 30); y = Math.round(y / 30); return x < y ? 1 : y < x ? 2 : 0 }
+  return `<button class="back" data-rclose="1">← К маршрутам</button><h2>⚖️ Сравнение</h2>
+    <div class="rcmp"><table><tr><th></th><th>${esc(a.data.name)}</th><th>${esc(b.data.name)}</th></tr>
+      ${row('Дней', A.days.length + A.isles.reduce((s, k) => s + (ISLAND_DAYS[k] || 0), 0), B.days.length + B.isles.reduce((s, k) => s + (ISLAND_DAYS[k] || 0), 0))}
+      ${row('Откуда', esc(a.data.baseName), esc(b.data.baseName))}
+      ${row('Ночёвки', A.trip ? 'в пути, ' + sa.nights : 'дома', B.trip ? 'в пути, ' + sb.nights : 'дома')}
+      ${row('Мест', sa.stops, sb.stops, sa.stops > sb.stops ? 1 : sb.stops > sa.stops ? 2 : 0)}
+      ${row('Время в дороге', '~' + hm(sa.drive), '~' + hm(sb.drive), cmpLess(sa.drive, sb.drive))}
+      ${row('Время на местах', '~' + hm(sa.visit), '~' + hm(sb.visit), cmpLess(sb.visit, sa.visit))}
+      ${Array.from({ length:n }, (_, i) => row('День ' + (i + 1), esc(da[i] || '—'), esc(db2[i] || '—'))).join('')}
+    </table></div>
+    <p class="rnote">🟩 — лучше по этому пункту: больше мест, меньше дороги.</p>
+    <div class="rsbtn"><button class="btn" data-ropen="${a.id}">👁 Открыть «${esc(a.data.name)}»</button><button class="btn" data-ropen="${b.id}">👁 Открыть «${esc(b.data.name)}»</button></div>`
+}
 function renderRoute() {
+  if (routeView && routeView.cmp) { const [a, b] = routeView.cmp.map(id => routes.find(x => String(x.id) === id)); if (a && b) return compareHtml(a, b); routeView = null }
+  if (routeView && routeView.open) {
+    const r = routes.find(x => String(x.id) === routeView.open)
+    if (r) return `<button class="back" data-rclose="1">← К маршрутам</button><h2>📌 ${esc(r.data.name)}</h2>
+      <p class="lead">${routeMeta(r)}. Сохранён ${new Date(r.data.created).toLocaleDateString('ru-RU', { day:'numeric', month:'long' })} — план не меняется, по нему можно ехать.</p>
+      <div class="rsbtn"><button class="btn" data-redit="${r.id}">✏️ Изменить в конструкторе</button></div>
+      ${planHtml(r.data.plan, new Set(r.data.params.must), true)}`
+    routeView = null
+  }
   const must = route.must.filter(k => routeItem(k))
   const plan = must.length ? planRoute() : null
   const baseName = route.base === '__me' ? 'где я сейчас' : route.base
@@ -2185,30 +2302,9 @@ function renderRoute() {
     + ROUTE_SECS.map(id => { const s = SECTIONS.find(x => x.id === id)
       return `<div class="rg">${s.icon} ${esc(s.name)}</div>` + s.items.filter(i => MAP_COORDS[keyOf(s, i)]).map(i => rowBtn(s, i)).join('') }).join('')
   const favLeft = favRoute.map(([s, i]) => keyOf(s, i)).filter(k => !route.must.includes(k))
-  let dayN = 0
-  const dayHtml = (d, i, all) => {
-    dayN++
-    let t = d.order[0] === 'trip:Рассвет на вулкане Батур' ? 2 * 60 : 8 * 60, p = d.start, n = 0
-    const from = d.startHome ? '🏠 Выезд из дома' : '🛏 Выезд после ночёвки — ' + esc(routeItem(all[i - 1].order.slice(-1)[0]).area)
-    const rows = d.order.map(k => { const it = routeItem(k), q = routePt(k), dm = driveMin(p, q); t += dm; const arrive = t; t += visitMin(k); p = q; n++
-      const extra = !route.must.includes(k)
-      return `<div class="rleg">🚗 ~${hm(dm)} в пути</div>
-        <div class="rstop ${extra ? 'extra' : ''}"><i>${n}</i><div><a href="#" data-mopen="${esc(k)}">${esc(it.title)}</a>
-          <small>${clock(arrive)}–${clock(t)} · ~${hm(visitMin(k))} · 📍 ${esc(it.area)}${extra ? ' · ✨ рядом, если будут силы' : ''}</small>
-          ${extra ? `<button class="rx" data-rmust="${esc(k)}">＋ В обязательные</button><button class="rx" data-rskip="${esc(k)}">✕ Не хочу</button>` : ''}</div></div>` }).join('')
-    const back = d.end && d.order.length ? driveMin(p, d.end) : 0
-    const tail = !d.order.length ? `<p class="rnote">Свободный день${d.end ? ' — дорога домой ~' + hm(costPath(d.start, [], d.end)) : ''}.</p>`
-      : d.end ? `<div class="rleg">🏠 ~${hm(back)} домой · дома около ${clock(t + back)}</div>` : stayHint(d.order[d.order.length - 1])
-    return `<div class="rday"><b>День ${dayN}${route.days < 1 ? ' (полдня)' : ''}<small>${d.free ? 'свободный — предлагаем' : ''}</small></b><div class="rin">
-      <div class="rleg">${from} · 8:00</div>${rows}${tail}
-      ${d.order.length ? `<div class="rtot">Итого ~${hm(d.cost)} из ${hm(plan.cap)}${plan.cap - d.cost > 90 ? ' — остаётся время на пляж или кафе' : ''}</div>
-      <a class="btn" href="${gmapsDay(d)}" target="_blank" rel="noopener">🗺️ Маршрут дня в Google Картах</a>` : ''}</div></div>` }
-  const isleHtml = x => { const it = routeItem(x.island); dayN += ISLAND_DAYS[x.island]
-    return `<div class="rday"><b>${ISLAND_DAYS[x.island] > 1 ? `Дни ${dayN - ISLAND_DAYS[x.island] + 1}–${dayN}` : `День ${dayN}`}<small>поездка</small></b><div class="rin">
-      <div class="rstop"><i>⛵</i><div><a href="#" data-mopen="${esc(x.island)}">${esc(it.title)}</a><small>~${ISLAND_DAYS[x.island]} ${ISLAND_DAYS[x.island] === 1 ? 'день' : ISLAND_DAYS[x.island] < 5 ? 'дня' : 'дней'} · ${esc(it.hours)}</small>
-      <small>${esc(it.feats.slice(0, 2).join(' · '))}</small></div></div></div></div>` }
   return `<h2>🧭 Маршрут</h2>
     <p class="lead">Отметьте места, которые точно хотите увидеть, и сколько у вас времени — гайд разложит их по дням и подскажет, что ещё посмотреть рядом. Кафе, аптеки и больницы не предлагаем — их удобно искать на «Карте рядом».</p>
+    ${savedListHtml()}
     <div class="rbox"><h4>1. Откуда выезжаете</h4>
       <div class="chips">${Object.keys(ROUTE_BASES).map(b => `<button class="chip ${route.base === b ? 'on' : ''}" data-rbase="${esc(b)}">${esc(b)}</button>`).join('')}<button class="chip ${route.base === '__me' ? 'on' : ''}" data-rme="1">📍 Где я сейчас</button></div>
       <h4>2. Сколько у вас времени</h4>
@@ -2224,9 +2320,10 @@ function renderRoute() {
       ${route.skip.length ? `<p class="rnote">Скрыто из подсказок: ${route.skip.length}. <button class="linkbtn" data-rskipclear="1">Вернуть</button></p>` : ''}
     </div>
     ${plan ? `<h3>Ваш план · ${esc(ROUTE_TIMES.find(x => x[0] === route.days)[1])} · от: ${esc(baseName)}${plan.trip ? ' · с ночёвками в пути' : ''}</h3>
-      ${plan.warn.map(w => `<div class="rwarn">⚠️ ${esc(w)}</div>`).join('')}
-      ${plan.isles.map(isleHtml).join('')}${plan.days.map(dayHtml).join('')}
-      <p class="rnote">🟢 — ваши обязательные места, 🟠 — что ещё есть рядом. Время в пути примерное: в час пик и в сезон дождей дорога бывает дольше. Выезд — 8:00, на Батур — ночью.${plan.trip ? ' Поездки на острова — отдельными днями, обычно с выездом из дома (лодки — из Санура и Серангана).' : ''} План хранится на этом телефоне.</p>` : ''}`
+      ${planHtml(plan, new Set(route.must), false)}
+      <button class="btn rsave" data-rsave="1">💾 Сохранить маршрут</button>
+      ${me && me.is_anonymous ? '<p class="rnote">Маршруты сохраняются на этом телефоне. Войдите в «Моём списке» — и они будут на всех ваших устройствах.</p>' : ''}
+      <p class="rnote">🟢 — ваши обязательные места, 🟠 — что ещё есть рядом. Время в пути примерное: в час пик и в сезон дождей дорога бывает дольше. Выезд — 8:00, на Батур — ночью.${plan.trip ? ' Поездки на острова — отдельными днями, обычно с выездом из дома (лодки — из Санура и Серангана).' : ''}</p>` : ''}`
 }
 
 // Карточка «Лента Instagram»
@@ -2544,6 +2641,14 @@ document.addEventListener('click', e => {
   const rtg = e.target.closest('[data-rtoggle]'); if (rtg) { const k = rtg.dataset.rtoggle; route.must = route.must.includes(k) ? route.must.filter(x => x !== k) : [...route.must, k]; saveRoute(); const y = scrollY, op = !!document.querySelector('.radd[open]'), q = (document.getElementById('rq') || {}).value || ''; render(); if (op) { const d = document.querySelector('.radd'); d.open = true; const i = document.getElementById('rq'); i.value = q; i.dispatchEvent(new Event('input')) } scrollTo(0, y); return }
   const rb = e.target.closest('[data-rbase]'); if (rb) { route.base = rb.dataset.rbase; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
   if (e.target.closest('[data-rfavall]')) { const fk = new Set(favs.map(f => f.data.key)); ROUTE_SECS.forEach(id => { const sc = SECTIONS.find(x => x.id === id); sc.items.forEach(i => { const k = keyOf(sc, i); if (fk.has(k) && MAP_COORDS[k] && !route.must.includes(k)) route.must.push(k) }) }); saveRoute(); const y = scrollY; render(); scrollTo(0, y); toast('⭐ Места из «Моего списка» добавлены в маршрут'); return }
+  if (e.target.closest('[data-rsave]')) return saveRouteCloud()
+  const ro = e.target.closest('[data-ropen]'); if (ro) { routeView = { open:ro.dataset.ropen }; routeCmpA = ''; render(); return window.scrollTo({ top:topOfPage() }) }
+  const re2 = e.target.closest('[data-redit]'); if (re2) { const r = routes.find(x => String(x.id) === re2.dataset.redit); if (r) { route = { ...r.data.params, skip:[...(r.data.params.skip || [])], must:[...r.data.params.must] }; saveRoute() } routeView = null; routeCmpA = ''; render(); toast('✏️ Маршрут в конструкторе — меняйте и сохраняйте как новый'); return window.scrollTo({ top:topOfPage() }) }
+  const rdl = e.target.closest('[data-rdel]'); if (rdl) return deleteRouteCloud(rdl.dataset.rdel)
+  const rrn = e.target.closest('[data-rren]'); if (rrn) return renameRouteCloud(rrn.dataset.rren)
+  const rcm = e.target.closest('[data-rcmp]'); if (rcm) { const id = rcm.dataset.rcmp; if (routeCmpA && routeCmpA !== id) { routeView = { cmp:[routeCmpA, id] }; routeCmpA = ''; render(); return window.scrollTo({ top:topOfPage() }) } routeCmpA = id; const y = scrollY; render(); scrollTo(0, y); return }
+  if (e.target.closest('[data-rcmpcancel]')) { routeCmpA = ''; const y = scrollY; render(); scrollTo(0, y); return }
+  if (e.target.closest('[data-rclose]')) { routeView = null; render(); return window.scrollTo({ top:topOfPage() }) }
   const rsy = e.target.closest('[data-rstay]'); if (rsy) { route.stay = rsy.dataset.rstay; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
   const rd = e.target.closest('[data-rdays]'); if (rd) { route.days = +rd.dataset.rdays; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
   const rm = e.target.closest('[data-rmust]'); if (rm) { route.must.push(rm.dataset.rmust); saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
@@ -2604,11 +2709,12 @@ document.getElementById('q').oninput = e => { query = e.target.value.trim(); ren
 async function load() {
   if (!me) return
   const { data, error } = await db.from('entries').select('*')
-    .in('entity_type', ['fav', 'place']).order('created_at', { ascending:true })
+    .in('entity_type', ['fav', 'place', 'route']).order('created_at', { ascending:true })
   if (error) { cloudOk = false; render(); return }
   cloudOk = true
   favs = data.filter(r => r.entity_type === 'fav')
   places = data.filter(r => r.entity_type === 'place')
+  routes = data.filter(r => r.entity_type === 'route')
   const y = window.scrollY; render(); window.scrollTo(0, y)
 }
 
@@ -2702,7 +2808,7 @@ async function setName(name) {
 }
 // Запоминаем список этого устройства, чтобы после входа добавить его в общий
 function rememberForMerge() {
-  try { localStorage.setItem('bali-merge', JSON.stringify([...favs, ...places].map(r => ({ entity_type: favs.includes(r) ? 'fav' : 'place', data:r.data })))) } catch (e) {}
+  try { localStorage.setItem('bali-merge', JSON.stringify([...favs, ...places, ...routes].map(r => ({ entity_type: favs.includes(r) ? 'fav' : routes.includes(r) ? 'route' : 'place', data:r.data })))) } catch (e) {}
 }
 const authMsg = m => /invalid login/i.test(m) ? '⚠️ Неверная почта или пароль. Если вы входили по ссылке из письма и ещё не задавали пароль — войдите по ссылке и задайте пароль здесь же.'
   : /already registered|already been registered/i.test(m) ? '⚠️ Эта почта уже зарегистрирована — нажмите «Войти» (или «прислать ссылку», если пароля нет)'
@@ -2739,7 +2845,7 @@ async function setPassword(password) {
 }
 async function logout() {
   toast('Вы вышли из аккаунта. Войти снова — значок «👤 Войти» вверху')
-  await db.auth.signOut(); me = null; favs = []; places = []; mailSent = ''
+  await db.auth.signOut(); me = null; favs = []; places = []; routes = []; routeView = null; mailSent = ''
   render(); ensureUser()
 }
 db.auth.onAuthStateChange((ev, session) => {
