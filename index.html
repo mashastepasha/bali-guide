@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261110-2100">
+<meta name="build" content="20261110-2330">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -361,6 +361,37 @@
   .mini a { text-decoration:none; font-size:18px; }
   .ph { margin:-12px -14px 10px; }
   .ph img { display:block; width:100%; aspect-ratio:16/10; object-fit:cover; background:var(--sand); }
+  /* ── 🧭 Маршрут ── */
+  .rbox { background:#fff; border-radius:16px; padding:12px 14px; margin:0 0 14px; box-shadow:0 2px 10px rgba(43,29,20,.08); }
+  .rbox h4 { margin:2px 0 8px; }
+  .rbox .chips { margin-bottom:6px; }
+  .rmust { display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 8px; }
+  .rmust span { background:#E6F2DC; color:#2E5A16; border-radius:999px; padding:5px 6px 5px 11px; font-size:14px; font-weight:600; display:inline-flex; gap:6px; align-items:center; }
+  .rmust span.isl { background:#DCEFF7; color:#1F5E7A; }
+  .rmust button { border:0; background:rgba(0,0,0,.08); border-radius:50%; width:22px; height:22px; cursor:pointer; font-size:13px; line-height:1; }
+  .radd summary { cursor:pointer; font-weight:700; color:var(--teal-2); padding:4px 0; }
+  .radd input { width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid var(--line); border-radius:10px; font-size:15px; margin:6px 0; }
+  .rlist { max-height:340px; overflow:auto; border:1px solid var(--line); border-radius:10px; }
+  .rlist .rg { font-size:12px; font-weight:800; color:var(--muted); padding:8px 10px 2px; background:#FBF5EA; position:sticky; top:0; }
+  .rlist button { display:flex; width:100%; text-align:left; gap:8px; border:0; border-bottom:1px solid var(--line); background:#fff; padding:8px 10px; font-size:14px; cursor:pointer; }
+  .rlist button.on { background:#E6F2DC; font-weight:700; }
+  .rlist button small { color:var(--muted); margin-left:auto; white-space:nowrap; }
+  .rday { background:#fff; border-radius:16px; overflow:hidden; margin:0 0 14px; box-shadow:0 4px 16px rgba(43,29,20,.10); }
+  .rday > b { display:block; background:var(--ink); color:#fff; padding:10px 14px; font-size:16px; }
+  .rday > b small { font-weight:500; opacity:.8; margin-left:6px; }
+  .rday .rin { padding:10px 14px 12px; }
+  .rleg { font-size:12.5px; color:var(--muted); padding:2px 0 2px 30px; }
+  .rstop { display:flex; gap:10px; align-items:flex-start; padding:6px 0; }
+  .rstop i { flex:none; width:22px; height:22px; border-radius:50%; background:#5E9E2F; color:#fff; font-style:normal; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center; margin-top:1px; }
+  .rstop.extra i { background:#E0A03A; }
+  .rstop div { flex:1; font-size:14.5px; }
+  .rstop a { color:var(--ink); font-weight:700; text-decoration:none; }
+  .rstop small { display:block; color:var(--muted); font-size:12.5px; }
+  .rstop .rx { border:0; background:#F3E7D3; border-radius:8px; padding:3px 8px; font-size:12px; cursor:pointer; margin:3px 4px 0 0; }
+  .rtot { font-size:13px; color:var(--muted); margin:6px 0 8px; }
+  .rwarn { background:#FFF1C9; color:#7A5A1E; border-radius:12px; padding:10px 12px; margin:0 0 12px; font-size:14px; }
+  .rnote { font-size:13px; color:var(--muted); }
+  .btn.route.on { background:#E6F2DC; color:#2E5A16; }
   /* ── Оформление «Лента Instagram» ── */
   .card.ig { padding:0; overflow:hidden; border-radius:18px; border:0; box-shadow:0 4px 16px rgba(43,29,20,.12); }
   .igph { position:relative; aspect-ratio:4/5; overflow:hidden; background:#EADDC8; }
@@ -585,6 +616,7 @@ const SIZE = { tiger:[130, 130], turtle:[62, 107.4], python:[120, 120], gecko:[1
 // Животное Бали и оттенок для каждого раздела
 const THEME = {
   map:   ['turtle',  ['#9FD3C7', '#3E7F74', '#173A35']],   // бирюзовая черепаха
+  route: ['manta',   ['#2E6B5E', '#163A33', '#E8F4EF']],   // манта — для маршрута
   docs:  ['starling',['#FFFFFF', '#E3E9F0', '#2F6FBF']],     // балийский скворец — символ острова
   laws:  ['tiger',   ['#E0763A', '#B5471F', '#1A0D08']],     // красный тигр
   health:['starling',['#FFFFFF', '#F1E4E0', '#E0675A']],    // скворец с коралловым отливом
@@ -1891,6 +1923,7 @@ function openInGuide(k) {
 const GROUPS = [
   { id:'home', name:'Главная', icon:'🌴' },
   { id:'map', name:'Карта рядом', icon:'🗺️', hint:'Что рядом с выбранным местом' },
+  { id:'route', name:'Маршрут', icon:'🧭', hint:'Ваши места + сколько дней — гайд составит план' },
   { id:'docs', name:'Въезд и документы', icon:'🛂', hint:'Визы, сроки, страховка, деньги' },
   { id:'laws', name:'Законы и безопасность', icon:'🛡️', hint:'Что нельзя и чего остерегаться' },
   { id:'health', name:'Здоровье', icon:'🩺', hint:'Страховой случай, больницы, аптеки 24/7' },
@@ -1980,6 +2013,154 @@ function igTag(sec, it) {
   const t = it.title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
   return t.length < 4 ? '' : t.length < 8 && !t.includes('bali') ? t + 'bali' : t
 }
+// ── 🧭 Маршрут ───────────────────────────────────────────────
+// Обязательные места + сколько времени → гайд раскладывает их по дням (каждый день — выезд от вашего жилья и обратно),
+// острова — отдельными днями, а в свободное время добавляет ближайшие красивые места. Время в пути — примерное.
+const ROUTE_SECS = ['trip', 'falls', 'beach', 'islands', 'kids']
+const ROUTE_BASES = { 'Чангу':[-8.6478, 115.1385], 'Семиньяк':[-8.6913, 115.1682], 'Кута / Легиан':[-8.71, 115.17], 'Джимбаран':[-8.79, 115.165],
+  'Букит / Улувату':[-8.815, 115.115], 'Нуса Дуа':[-8.8, 115.231], 'Санур':[-8.688, 115.262], 'Убуд':[-8.5069, 115.2625], 'Амед':[-8.335, 115.655], 'Ловина':[-8.16, 115.026], 'Мундук':[-8.265, 115.07] }
+const ROUTE_TIMES = [[0.5, '½ дня'], [1, '1 день'], [2, '2 дня'], [3, '3 дня'], [4, '4 дня'], [5, '5 дней'], [7, '7 дней']]
+const VISIT_MIN = { trip:90, falls:100, beach:120, kids:180 }
+const VISIT_OVR = { 'trip:Рассвет на вулкане Батур':360, 'trip:Храм Лемпуянг — «Врата рая»':180, 'trip:Храм Улувату и танец кечак':150, 'trip:Рисовые террасы Джатилувих':120,
+  'trip:Парк GWK (Garuda Wisnu Kencana)':120, 'kids:Bali Safari & Marine Park':300, 'kids:Bali Zoo':180, 'kids:Приют диких животных Jero (Dimas Bedugul Rescue)':90 }
+const ISLAND_DAYS = { 'islands:Нуса Пенида':1, 'islands:Нуса Лембонган':1, 'islands:Остров Менджанган':1, 'islands:Острова Гили':2, 'islands:Розовый пляж Pink Beach (Pantai Tangsi)':2,
+  'islands:Ломбок':3, 'islands:Вулканы Бромо и Иджен':3, 'islands:Национальный парк Комодо':3, 'islands:Остров Сумба':4 }
+const DAY_MIN = 600, HALF_MIN = 300   // день 8:00–18:00, полдня — 5 часов
+let route = (() => { try { return JSON.parse(localStorage.getItem('bali-route')) } catch (e) { return null } })() || { must:[], days:1, base:'Чангу', skip:[] }
+route.skip = route.skip || []
+const saveRoute = () => { try { localStorage.setItem('bali-route', JSON.stringify(route)) } catch (e) {} }
+const routeSec = k => SECTIONS.find(s => s.id === k.split(':')[0])
+const routeItem = k => { const s = routeSec(k); return s && s.items.find(i => keyOf(s, i) === k) }
+const routePt = k => { const c = MAP_COORDS[k]; return c ? { lat:c[0], lng:c[1] } : null }
+const routeBase = () => route.base === '__me' && route.me ? route.me : (b => ({ lat:b[0], lng:b[1] }))(ROUTE_BASES[route.base] || ROUTE_BASES['Чангу'])
+const driveMin = (a, b) => { const d = kmBetween(a, b); return d < 0.4 ? 3 : Math.round(d * 1.35 / 32 * 60 + 10) }   // дороги Бали: ~32 км/ч + парковка
+const visitMin = k => VISIT_OVR[k] || VISIT_MIN[k.split(':')[0]] || 90
+const hm = m => m < 60 ? m + ' мин' : (h => (Number.isInteger(h) ? h : h.toFixed(1).replace('.', ',')) + ' ч')(Math.round(m / 30) / 2)
+const clock = m => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0')
+function dayCost(keys) { const b = routeBase(); let t = 0, p = b; keys.forEach(k => { const q = routePt(k); t += driveMin(p, q) + visitMin(k); p = q }); return keys.length ? t + driveMin(p, b) : 0 }
+function bestOrder(keys) {
+  const left = [...keys], out = []; let p = routeBase()
+  while (left.length) { let bi = 0, bd = 1e9; left.forEach((k, i) => { const d = kmBetween(p, routePt(k)); if (d < bd) { bd = d; bi = i } }); const k = left.splice(bi, 1)[0]; out.push(k); p = routePt(k) }
+  const rev = [...out].reverse(); return dayCost(rev) < dayCost(out) ? rev : out
+}
+// Вставить место в день так, чтобы крюк был минимальным
+function bestInsert(day, k) {
+  let best = null
+  for (let i = 0; i <= day.length; i++) { const t = [...day.slice(0, i), k, ...day.slice(i)], c = dayCost(t); if (!best || c < best.c) best = { t, c } }
+  return best
+}
+function routeCandidates(used) {
+  const out = []
+  ROUTE_SECS.forEach(id => { if (id === 'islands') return; const s = SECTIONS.find(x => x.id === id); s.items.forEach(i => { const k = keyOf(s, i); if (MAP_COORDS[k] && !used.has(k) && !route.skip.includes(k)) out.push(k) }) })
+  return out
+}
+function planRoute() {
+  const half = route.days < 1, cap = half ? HALF_MIN : DAY_MIN, warn = []
+  const must = route.must.filter(k => routeItem(k) && routePt(k))
+  const isl = must.filter(k => ISLAND_DAYS[k]), land = must.filter(k => !ISLAND_DAYS[k])
+  const islDays = isl.reduce((a, k) => a + ISLAND_DAYS[k], 0), total = half ? 1 : route.days
+  if (half && isl.length) warn.push('На острова полдня не хватит — выберите хотя бы 1 день. Пока считаю без островов.')
+  else if (islDays > total) warn.push(`На выбранные острова нужно ~${islDays} дн., а у вас ${total}. Добавьте дней или уберите остров.`)
+  const landDays = half ? 1 : Math.max(0, total - (half ? 0 : islDays))
+  const days = [], used = new Set(must), base = routeBase()
+  let left = [...land]
+  // 1) Каждый день начинаем с самого дальнего места и добавляем ближайшие к нему, пока день не заполнен
+  while (left.length && days.length < landDays) {
+    left.sort((a, b) => kmBetween(base, routePt(b)) - kmBetween(base, routePt(a)))
+    let day = [left.shift()], grew = true
+    const freeDays = landDays - days.length - 1
+    while (grew) {
+      grew = false
+      const near = left.map(k => ({ k, d:Math.min(...day.map(x => kmBetween(routePt(x), routePt(k)))) })).sort((a, b) => a.d - b.d)
+      for (const c of near) {
+        if (freeDays > 0 && c.d > 25) break            // есть ещё дни — далёкие места уходят в другой день
+        const ins = bestInsert(day, c.k); if (ins.c <= cap) { day = ins.t; left = left.filter(x => x !== c.k); grew = true; break }
+      }
+    }
+    days.push({ must:bestOrder(day), extra:[] })
+  }
+  // 2) То, что не влезло, — пробуем дописать в любой день, где хватает времени
+  left = left.filter(k => { for (const d of days) { const ins = bestInsert(d.must, k); if (ins.c <= cap) { d.must = ins.t; return false } } return true })
+  if (left.length) warn.push('Не помещается: ' + left.map(k => routeItem(k).title).join(', ') + '. Добавьте дней или уберите что-то из обязательных.')
+  // 3) Свободные дни — начинаем с самого популярного места рядом с жильём
+  const cands = routeCandidates(used)
+  while (days.length < landDays && cands.length) {
+    const seed = cands.filter(k => PHOTOS[k] && !k.startsWith('beach:')).sort((a, b) => kmBetween(base, routePt(a)) - kmBetween(base, routePt(b)))[0] || cands[0]
+    cands.splice(cands.indexOf(seed), 1); used.add(seed); days.push({ must:[], extra:[seed], free:true })
+  }
+  // 4) В каждый день добавляем ближайшие места, пока есть время (крюк не больше часа)
+  days.forEach(d => {
+    const lim = half ? 2 : 4
+    while (d.extra.length < lim) {
+      const cur = bestOrder([...d.must, ...d.extra]), now = dayCost(cur)
+      let best = null
+      routeCandidates(used).forEach(k => {
+        const ins = bestInsert(cur, k), detour = ins.c - now - visitMin(k)
+        if (ins.c > cap || detour > 60) return
+        if (k.startsWith('beach:') && d.extra.filter(x => x.startsWith('beach:')).length >= 2) return   // не больше двух пляжей в подсказках
+        const anchors = d.must.length ? d.must : d.extra.slice(0, 1)                                       // подсказываем рядом с вашими местами
+        const near = anchors.length ? Math.min(...anchors.map(a => kmBetween(routePt(a), routePt(k)))) : 0
+        const score = detour + near * 1.5 - (routeItem(k).pick ? 15 : 0) - (PHOTOS[k] ? 10 : 0)
+        if (!best || score < best.score) best = { k, score }
+      })
+      if (!best) break
+      d.extra.push(best.k); used.add(best.k)
+    }
+    d.order = bestOrder([...d.must, ...d.extra])
+    d.cost = dayCost(d.order)
+  })
+  const isles = half ? [] : isl.map(k => ({ island:k }))
+  return { days, isles, warn, cap }
+}
+function gmapsDay(order) {
+  const b = routeBase(), p = k => { const c = MAP_COORDS[k]; return c[0] + ',' + c[1] }, o = b.lat + ',' + b.lng
+  return 'https://www.google.com/maps/dir/?api=1&travelmode=driving&origin=' + o + '&destination=' + o + '&waypoints=' + encodeURIComponent(order.slice(0, 9).map(p).join('|'))
+}
+function renderRoute() {
+  const must = route.must.filter(k => routeItem(k))
+  const plan = must.length ? planRoute() : null
+  const baseName = route.base === '__me' ? 'где я сейчас' : route.base
+  const listHtml = ROUTE_SECS.map(id => { const s = SECTIONS.find(x => x.id === id)
+    return `<div class="rg">${s.icon} ${esc(s.name)}</div>` + s.items.filter(i => MAP_COORDS[keyOf(s, i)]).map(i => { const k = keyOf(s, i), on = route.must.includes(k)
+      return `<button class="${on ? 'on' : ''}" data-rtoggle="${esc(k)}" data-q="${esc((i.title + ' ' + i.area).toLowerCase())}">${on ? '✅' : '⬜'} ${esc(i.title)}<small>${esc(i.area.split(/ \/ |, | \(/)[0])}</small></button>` }).join('') }).join('')
+  let start = 8 * 60, dayN = 0
+  const dayHtml = d => {
+    dayN++
+    let t = d.order.includes('trip:Рассвет на вулкане Батур') && d.order[0] === 'trip:Рассвет на вулкане Батур' ? 2 * 60 : start, p = routeBase(), n = 0
+    const rows = d.order.map(k => { const it = routeItem(k), q = routePt(k), dm = driveMin(p, q); t += dm; const arrive = t; t += visitMin(k); p = q; n++
+      const extra = !route.must.includes(k)
+      return `<div class="rleg">🚗 ~${hm(dm)} в пути</div>
+        <div class="rstop ${extra ? 'extra' : ''}"><i>${n}</i><div><a href="#" data-mopen="${esc(k)}">${esc(it.title)}</a>
+          <small>${clock(arrive)}–${clock(t)} · ~${hm(visitMin(k))} · 📍 ${esc(it.area)}${extra ? ' · ✨ рядом, если будут силы' : ''}</small>
+          ${extra ? `<button class="rx" data-rmust="${esc(k)}">＋ В обязательные</button><button class="rx" data-rskip="${esc(k)}">✕ Не хочу</button>` : ''}</div></div>` }).join('')
+    const back = d.order.length ? driveMin(p, routeBase()) : 0
+    return `<div class="rday"><b>День ${dayN}${route.days < 1 ? ' (полдня)' : ''}<small>${d.free ? 'свободный — предлагаем' : ''}</small></b><div class="rin">
+      ${rows}<div class="rleg">🏠 ~${hm(back)} обратно · дома около ${clock(t + back)}</div>
+      <div class="rtot">Итого ~${hm(d.cost)} из ${hm(plan.cap)}${plan.cap - d.cost > 90 ? ' — остаётся время на пляж или кафе' : ''}</div>
+      <a class="btn" href="${gmapsDay(d.order)}" target="_blank" rel="noopener">🗺️ Маршрут дня в Google Картах</a></div></div>` }
+  const isleHtml = x => { const it = routeItem(x.island); dayN += ISLAND_DAYS[x.island]
+    return `<div class="rday"><b>${ISLAND_DAYS[x.island] > 1 ? `Дни ${dayN - ISLAND_DAYS[x.island] + 1}–${dayN}` : `День ${dayN}`}<small>поездка</small></b><div class="rin">
+      <div class="rstop"><i>⛵</i><div><a href="#" data-mopen="${esc(x.island)}">${esc(it.title)}</a><small>~${ISLAND_DAYS[x.island]} ${ISLAND_DAYS[x.island] === 1 ? 'день' : ISLAND_DAYS[x.island] < 5 ? 'дня' : 'дней'} · ${esc(it.hours)}</small>
+      <small>${esc(it.feats.slice(0, 2).join(' · '))}</small></div></div></div></div>` }
+  return `<h2>🧭 Маршрут</h2>
+    <p class="lead">Отметьте места, которые точно хотите увидеть, и сколько у вас времени — гайд разложит их по дням и подскажет, что ещё посмотреть рядом. Кафе, аптеки и больницы не предлагаем — их удобно искать на «Карте рядом».</p>
+    <div class="rbox"><h4>1. Где вы живёте</h4>
+      <div class="chips">${Object.keys(ROUTE_BASES).map(b => `<button class="chip ${route.base === b ? 'on' : ''}" data-rbase="${esc(b)}">${esc(b)}</button>`).join('')}<button class="chip ${route.base === '__me' ? 'on' : ''}" data-rme="1">📍 Где я сейчас</button></div>
+      <h4>2. Сколько у вас времени</h4>
+      <div class="chips">${ROUTE_TIMES.map(([v, n]) => `<button class="chip ${route.days === v ? 'on' : ''}" data-rdays="${v}">${n}</button>`).join('')}</div>
+      <h4>3. Обязательные места</h4>
+      ${must.length ? `<div class="rmust">${must.map(k => `<span class="${ISLAND_DAYS[k] ? 'isl' : ''}">${ISLAND_DAYS[k] ? '⛵ ' : ''}${esc(routeItem(k).title)}<button data-rtoggle="${esc(k)}" aria-label="Убрать">✕</button></span>`).join('')}</div>`
+        : '<p class="rnote">Пока ничего не выбрано. Нажмите «＋ Добавить место» или кнопку «🧭 В маршрут» в карточке любого пляжа, храма, водопада или острова.</p>'}
+      <details class="radd"${must.length ? '' : ' open'}><summary>＋ Добавить место</summary>
+        <input id="rq" placeholder="Найти: Танах Лот, Убуд, водопад…" autocomplete="off"><div class="rlist">${listHtml}</div></details>
+      ${route.skip.length ? `<p class="rnote">Скрыто из подсказок: ${route.skip.length}. <button class="linkbtn" data-rskipclear="1">Вернуть</button></p>` : ''}
+    </div>
+    ${plan ? `<h3>Ваш план · ${esc(ROUTE_TIMES.find(x => x[0] === route.days)[1])} · от: ${esc(baseName)}</h3>
+      ${plan.warn.map(w => `<div class="rwarn">⚠️ ${esc(w)}</div>`).join('')}
+      ${plan.isles.map(isleHtml).join('')}${plan.days.map(dayHtml).join('')}
+      <p class="rnote">🟢 — ваши обязательные места, 🟠 — что ещё есть рядом. Время в пути примерное: в час пик и в сезон дожди дорога бывает дольше. Выезд — 8:00, на Батур — ночью. План хранится на этом телефоне.</p>` : ''}`
+}
+
 // Карточка «Лента Instagram»
 function igCard(sec, it) {
   const k = keyOf(sec, it), on = favs.some(f => f.data.key === k), ph = PHOTOS[k]
@@ -1997,7 +2178,7 @@ function igCard(sec, it) {
       <div class="tags">${tags}</div>
       ${it.hours || it.price ? `<div class="meta">${it.hours ? `<div>🕒 <span>${esc(it.hours)}</span></div>` : ''}${it.price ? `<div>💰 <span>${esc(it.price)}</span></div>` : ''}</div>` : ''}
       ${(fs => fs.length ? `<ul class="feats">${fs.map(f => `<li>${esc(f)}</li>`).join('')}</ul>` : '')(ownFeats(it.feats))}
-      <div class="foot"><a class="btn" href="${mapUrl(it.title, it.area)}" target="_blank" rel="noopener">🗺️ На карте</a>${MAP_COORDS[k] ? `<button class="btn" data-mgo="${esc(k)}">📍 Что рядом</button>` : ''}${IG[k] ? `<a class="btn" href="https://www.instagram.com/${IG[k]}/" target="_blank" rel="noopener">📷 Instagram</a>` : (t => t ? `<a class="btn insta" href="https://www.instagram.com/explore/tags/${t}/" target="_blank" rel="noopener" title="#${t}">📸 Фото в Instagram</a>` : '')(igTag(sec, it))}</div>
+      <div class="foot"><a class="btn" href="${mapUrl(it.title, it.area)}" target="_blank" rel="noopener">🗺️ На карте</a>${MAP_COORDS[k] ? `<button class="btn" data-mgo="${esc(k)}">📍 Что рядом</button>` : ''}${ROUTE_SECS.includes(sec.id) && MAP_COORDS[k] ? (on => `<button class="btn route ${on ? 'on' : ''}" data-route="${esc(k)}">${on ? '✓ В маршруте' : '🧭 В маршрут'}</button>`)(route.must.includes(k)) : ''}${IG[k] ? `<a class="btn" href="https://www.instagram.com/${IG[k]}/" target="_blank" rel="noopener">📷 Instagram</a>` : (t => t ? `<a class="btn insta" href="https://www.instagram.com/explore/tags/${t}/" target="_blank" rel="noopener" title="#${t}">📸 Фото в Instagram</a>` : '')(igTag(sec, it))}</div>
     </div>
   </div>`
 }
@@ -2232,6 +2413,7 @@ function renderPage(id) {
   if (id === 'health') return renderHealth()
   if (id === 'recs') return renderRecs()
   if (id === 'map') return renderMap()
+  if (id === 'route') return renderRoute()
   if (id === 'taxi') return renderTaxi()
   if (id === 'mine') return renderMine()
   if (id === 'laundry') return renderLaundry(SECTIONS.find(s => s.id === id))
@@ -2281,6 +2463,7 @@ window.addEventListener('popstate', e => {
 })
 
 // ── Нажатия ──────────────────────────────────────────────────
+document.addEventListener('input', e => { if (e.target.id !== 'rq') return; const q = e.target.value.trim().toLowerCase(); document.querySelectorAll('.rlist [data-q]').forEach(b => b.hidden = !!q && !b.dataset.q.includes(q)); document.querySelectorAll('.rlist .rg').forEach(g => { let n = g.nextElementSibling, any = false; while (n && !n.classList.contains('rg')) { if (!n.hidden) any = true; n = n.nextElementSibling } g.hidden = !any }) })
 document.addEventListener('click', e => {
   if (e.target.closest('[data-logout]')) return logout()
   if (e.target.closest('[data-acct]')) { go('mine'); setTimeout(() => { const el = document.querySelector('.sync'); if (el) el.scrollIntoView({ behavior:'smooth', block:'center' }) }, 650); return }
@@ -2289,6 +2472,20 @@ document.addEventListener('click', e => {
   const ar = e.target.closest('[data-arr]'); if (ar) { const r = ar.parentElement.querySelector('.row, .subnav'); return r.scrollBy({ left: ar.dataset.arr * r.clientWidth * .7, behavior:'smooth' }) }
   const bk = e.target.closest('[data-back]'); if (bk) return history.state && history.state.d > 0 ? history.back() : go('home')
   const t = e.target.closest('[data-tab]'); if (t) return go(t.dataset.tab)
+  const rt = e.target.closest('[data-route]'); if (rt) { const k = rt.dataset.route; route.must = route.must.includes(k) ? route.must.filter(x => x !== k) : [...route.must, k]; saveRoute(); const y = scrollY; render(); scrollTo(0, y); if (route.must.includes(k)) toast('🧭 Добавлено в маршрут — откройте раздел «Маршрут»'); return }
+  const rtg = e.target.closest('[data-rtoggle]'); if (rtg) { const k = rtg.dataset.rtoggle; route.must = route.must.includes(k) ? route.must.filter(x => x !== k) : [...route.must, k]; saveRoute(); const y = scrollY, op = !!document.querySelector('.radd[open]'), q = (document.getElementById('rq') || {}).value || ''; render(); if (op) { const d = document.querySelector('.radd'); d.open = true; const i = document.getElementById('rq'); i.value = q; i.dispatchEvent(new Event('input')) } scrollTo(0, y); return }
+  const rb = e.target.closest('[data-rbase]'); if (rb) { route.base = rb.dataset.rbase; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
+  const rd = e.target.closest('[data-rdays]'); if (rd) { route.days = +rd.dataset.rdays; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
+  const rm = e.target.closest('[data-rmust]'); if (rm) { route.must.push(rm.dataset.rmust); saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
+  const rs = e.target.closest('[data-rskip]'); if (rs) { route.skip.push(rs.dataset.rskip); saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
+  if (e.target.closest('[data-rskipclear]')) { route.skip = []; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
+  const rme = e.target.closest('[data-rme]'); if (rme) {
+    if (!navigator.geolocation) return alert('Телефон не даёт определить место')
+    rme.textContent = '⏳ Ищу вас…'
+    navigator.geolocation.getCurrentPosition(pos => { route.me = { lat:pos.coords.latitude, lng:pos.coords.longitude }; route.base = '__me'; saveRoute(); const y = scrollY; render(); scrollTo(0, y) },
+      () => { rme.textContent = '📍 Где я сейчас'; alert('Не получилось определить место — выберите район из списка') }, { enableHighAccuracy:true, timeout:10000 })
+    return
+  }
   const mg = e.target.closest('[data-mgo]'); if (mg) { e.preventDefault(); mapCenterKey = mg.dataset.mgo; mapUserPos = null; if (tab !== 'map') { go('map') } else drawMap(); return }
   const mo = e.target.closest('[data-mopen]'); if (mo) { e.preventDefault(); return openInGuide(mo.dataset.mopen) }
   const mr = e.target.closest('[data-mrad]'); if (mr) { mapRadius = +mr.dataset.mrad; view.querySelectorAll('[data-mrad]').forEach(b => b.classList.toggle('on', b === mr)); return drawMap() }
