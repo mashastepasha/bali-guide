@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261111-0310">
+<meta name="build" content="20261111-1200">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -2042,7 +2042,9 @@ const VISIT_OVR = { 'trip:Рассвет на вулкане Батур':360, 't
   'trip:Парк GWK (Garuda Wisnu Kencana)':120, 'kids:Bali Safari & Marine Park':300, 'kids:Bali Zoo':180, 'kids:Приют диких животных Jero (Dimas Bedugul Rescue)':90 }
 const ISLAND_DAYS = { 'islands:Нуса Пенида':1, 'islands:Нуса Лембонган':1, 'islands:Остров Менджанган':1, 'islands:Острова Гили':2, 'islands:Розовый пляж Pink Beach (Pantai Tangsi)':2,
   'islands:Ломбок':3, 'islands:Вулканы Бромо и Иджен':3, 'islands:Национальный парк Комодо':3, 'islands:Остров Сумба':4 }
-const DAY_MIN = 600, HALF_MIN = 300   // день 8:00–18:00, полдня — 5 часов
+const DAY_MIN = 600, HALF_MIN = 300, DAY_END = 18 * 60   // день — до 18:00 (по темноте в горах ездить не стоит), полдня — 5 часов
+const ROUTE_STARTS = [6, 7, 8, 9, 10, 11]                  // во сколько выезжаете (часы)
+const routeStart = () => (route.start || 8) * 60
 let route = (() => { try { return JSON.parse(localStorage.getItem('bali-route')) } catch (e) { return null } })() || { must:[], days:1, base:'Чангу', skip:[] }
 route.skip = route.skip || []
 const saveRoute = () => { try { localStorage.setItem('bali-route', JSON.stringify(route)) } catch (e) {} }
@@ -2107,13 +2109,13 @@ function loopOrder(keys) {
   return o
 }
 // Нарезать кольцо на n дней с ночёвками в пути: подбираем самый ровный по времени вариант
-function splitChain(loop, n, cap) {
+function splitChain(loop, n, cap, homeEnd = true) {
   const b = routeBase()
   const tryT = T => { const segs = []; let start = b, cur = []
     for (const k of loop) { if (cur.length && costPath(start, [...cur, k], null) > T) { segs.push(cur); start = routePt(cur[cur.length - 1]); cur = [] } cur.push(k) }
     if (cur.length) segs.push(cur)
     const lastStart = segs.length > 1 ? routePt(segs[segs.length - 2].slice(-1)[0]) : b
-    return segs.length <= n && costPath(lastStart, segs[segs.length - 1], b) <= Math.max(T, cap) ? segs : null }
+    return segs.length <= n && costPath(lastStart, segs[segs.length - 1], homeEnd ? b : null) <= Math.max(T, cap) ? segs : null }
   for (let T = 120; T <= cap; T += 15) { const s = tryT(T); if (s) return { segs:s, ok:true } }
   // не помещается: режем по полному дню, лишнее — в предупреждение
   const segs = []; let start = b, cur = [], over = []
@@ -2126,24 +2128,26 @@ function splitChain(loop, n, cap) {
   return { segs, ok:false, over }
 }
 function planRoute() {
-  const half = route.days < 1, cap = half ? HALF_MIN : DAY_MIN, warn = []
+  const startMin = routeStart(), half = route.days < 1, cap = half ? HALF_MIN : Math.max(240, DAY_END - startMin), warn = []
+  if (startMin >= 10 * 60) warn.push(`Выезд в ${clock(startMin)} — не лучшее время: с 9 до 11 утра на юге Бали (Чангу, Семиньяк, Кута, Денпасар) плотные пробки; к обеду популярные места заполнены туристами и жарко; в сезон дождей (ноябрь–март) после обеда часто ливни, а в горах к полудню набегает туман и закрывает виды. В день помещается меньше мест. Если получится — выезжайте в 7–8 утра.`)
   const must = route.must.filter(k => routeItem(k) && routePt(k))
   const isl = must.filter(k => ISLAND_DAYS[k]), land = must.filter(k => !ISLAND_DAYS[k])
   const islDays = isl.reduce((a, k) => a + ISLAND_DAYS[k], 0), total = half ? 1 : route.days
   if (half && isl.length) warn.push('На острова полдня не хватит — выберите хотя бы 1 день. Пока считаю без островов.')
   else if (islDays > total) warn.push(`На выбранные острова нужно ~${islDays} дн., а у вас ${total}. Добавьте дней или уберите остров.`)
   const landDays = half ? 1 : Math.max(0, total - islDays)
-  const trip = route.stay === 'trip' && !half && landDays >= 2
+  const next = route.stay === 'trip_next' && !half && landDays >= 1          // домой — утром следующего дня
+  const trip = !half && ((route.stay === 'trip' && landDays >= 2) || next)
   const days = [], used = new Set(must), base = routeBase()
   if (trip) {
     // ── С ночёвками в пути: одна цепочка от дома и обратно в последний день ──
-    const res = land.length ? splitChain(loopOrder(land), landDays, cap) : { segs:[], ok:true }
+    const res = land.length ? splitChain(loopOrder(land), landDays, cap, !next) : { segs:[], ok:true }
     if (res.over && res.over.length) warn.push('Не помещается: ' + res.over.map(k => routeItem(k).title).join(', ') + '. Добавьте дней или уберите что-то из обязательных.')
     const segs = [...res.segs]; while (segs.length < landDays) segs.push([])
     let start = base
     segs.forEach((seg, i) => {
       const last = i === segs.length - 1
-      const d = { start, end:last ? base : null, must:[...seg], extra:[], order:[...seg], free:!seg.length, trip:true, startHome:i === 0 }
+      const d = { start, end:last && !next ? base : null, must:[...seg], extra:[], order:[...seg], free:!seg.length, trip:true, startHome:i === 0 }
       fillDay(d, used, cap, 4)
       if (!d.order.length) { d.cost = costPath(d.start, [], d.end) }
       days.push(d)
@@ -2172,7 +2176,9 @@ function planRoute() {
     days.forEach(d => { d.start = base; d.end = base; d.startHome = true; d.order = [...d.must]; fillDay(d, used, cap, half ? 2 : 4); d.order = bestOrder(d.order); d.cost = dayCost(d.order) })
   }
   const isles = half ? [] : isl.map(k => ({ island:k }))
-  return { days, isles, warn, cap, trip }
+  let homeNext = null
+  if (next && days.length) { const ld = days[days.length - 1], from = ld.order.length ? routePt(ld.order[ld.order.length - 1]) : ld.start; homeNext = { min:driveMin(from, base) } }
+  return { days, isles, warn, cap, trip, start:startMin, homeNext, next }
 }
 // Где ночевать: район последнего места дня, отели из гайда рядом и поиск жилья в Google Картах
 const ROUTE_STAYS = ['exp:Desa Eko', 'exp:Lodge in the Woods — отель с белыми лошадьми']
@@ -2190,7 +2196,7 @@ function gmapsDay(d) {
 let routes = [], routeView = null, routeCmpA = ''
 const routeNameDef = () => `${ROUTE_TIMES.find(x => x[0] === route.days)[1]} от ${route.base === '__me' ? 'моего места' : route.base} · ${new Date().toLocaleDateString('ru-RU', { day:'numeric', month:'long' })}`
 function snapPlan(plan) {
-  return { trip:plan.trip, cap:plan.cap, warn:plan.warn, isles:plan.isles.map(x => x.island),
+  return { trip:plan.trip, cap:plan.cap, warn:plan.warn, isles:plan.isles.map(x => x.island), start:plan.start, homeNext:plan.homeNext, next:plan.next,
     days:plan.days.map(d => ({ start:d.start, end:d.end, order:d.order, startHome:!!d.startHome, free:!!d.free, cost:d.cost })) }
 }
 async function saveRouteCloud() {
@@ -2221,15 +2227,16 @@ async function renameRouteCloud(id) {
 }
 const routeStats = p => {
   const stops = p.days.reduce((a, d) => a + d.order.length, 0), visit = p.days.reduce((a, d) => a + d.order.reduce((b, k) => b + visitMin(k), 0), 0)
-  const all = p.days.reduce((a, d) => a + (d.cost || 0), 0)
-  return { stops, visit, drive:Math.max(0, all - visit), nights:p.trip ? Math.max(0, p.days.length - 1) : 0 }
+  const all = p.days.reduce((a, d) => a + (d.cost || 0), 0) + (p.homeNext ? p.homeNext.min : 0)
+  return { stops, visit, drive:Math.max(0, all - visit), nights:p.trip ? Math.max(0, p.days.length - 1) + (p.next ? 1 : 0) : 0 }
 }
 // Отрисовка плана по дням (общая для конструктора, сохранённого маршрута и сравнения)
 function planHtml(plan, mustSet, ro) {
   let dayN = 0
   const dayHtml = (d, i, all) => {
     dayN++
-    let t = d.order[0] === 'trip:Рассвет на вулкане Батур' ? 2 * 60 : 8 * 60, p = d.start, n = 0
+    const st0 = d.order[0] === 'trip:Рассвет на вулкане Батур' ? 2 * 60 : (plan.start || 8 * 60)
+    let t = st0, p = d.start, n = 0
     const prevLast = i > 0 && all[i - 1].order.length ? routeItem(all[i - 1].order.slice(-1)[0]) : null
     const from = d.startHome ? '🏠 Выезд из дома' : '🛏 Выезд после ночёвки' + (prevLast ? ' — ' + esc(prevLast.area) : '')
     const rows = d.order.filter(routeItem).map(k => { const it = routeItem(k), q = routePt(k), dm = driveMin(p, q); t += dm; const arrive = t; t += visitMin(k); p = q; n++
@@ -2242,18 +2249,21 @@ function planHtml(plan, mustSet, ro) {
     const tail = !d.order.length ? `<p class="rnote">Свободный день${d.end ? ' — дорога домой ~' + hm(costPath(d.start, [], d.end)) : ''}.</p>`
       : d.end ? `<div class="rleg">🏠 ~${hm(back)} домой · дома около ${clock(t + back)}</div>` : stayHint(d.order[d.order.length - 1])
     return `<div class="rday"><b>День ${dayN}${plan.cap === HALF_MIN ? ' (полдня)' : ''}<small>${d.free ? 'свободный — предлагаем' : ''}</small></b><div class="rin">
-      <div class="rleg">${from} · ${d.order[0] === 'trip:Рассвет на вулкане Батур' ? '2:00' : '8:00'}</div>${rows}${tail}
+      <div class="rleg">${from} · ${clock(st0)}</div>${rows}${tail}
       ${d.order.length ? `<div class="rtot">Итого ~${hm(d.cost)} из ${hm(plan.cap)}${plan.cap - d.cost > 90 ? ' — остаётся время на пляж или кафе' : ''}</div>
       <a class="btn" href="${gmapsDay(d)}" target="_blank" rel="noopener">🗺️ Маршрут дня в Google Картах</a>` : ''}</div></div>` }
   const isleHtml = x => { const k = x.island || x, it = routeItem(k); if (!it) return ''; dayN += ISLAND_DAYS[k]
     return `<div class="rday"><b>${ISLAND_DAYS[k] > 1 ? `Дни ${dayN - ISLAND_DAYS[k] + 1}–${dayN}` : `День ${dayN}`}<small>поездка</small></b><div class="rin">
       <div class="rstop"><i>⛵</i><div><a href="#" data-mopen="${esc(k)}">${esc(it.title)}</a><small>~${ISLAND_DAYS[k]} ${ISLAND_DAYS[k] === 1 ? 'день' : ISLAND_DAYS[k] < 5 ? 'дня' : 'дней'} · ${esc(it.hours)}</small>
       <small>${esc(it.feats.slice(0, 2).join(' · '))}</small></div></div></div></div>` }
-  return plan.warn.map(w => `<div class="rwarn">⚠️ ${esc(w)}</div>`).join('') + plan.isles.map(isleHtml).join('') + plan.days.map(dayHtml).join('')
+  const homeHtml = () => plan.homeNext ? `<div class="rday"><b>Утро дня ${dayN + 1}<small>дорога домой</small></b><div class="rin">
+      <div class="rleg">🌅 После ночёвки — выезд около ${clock(plan.start || 8 * 60)}, позавтракайте спокойно</div>
+      <div class="rleg">🏠 ~${hm(plan.homeNext.min)} домой · дома около ${clock((plan.start || 8 * 60) + plan.homeNext.min)}</div></div></div>` : ''
+  return plan.warn.map(w => `<div class="rwarn">⚠️ ${esc(w)}</div>`).join('') + plan.isles.map(isleHtml).join('') + plan.days.map(dayHtml).join('') + homeHtml()
 }
 function routeMeta(r) {
   const p = r.data.plan, st = routeStats(p), dn = p.days.length + p.isles.reduce((a, k) => a + (ISLAND_DAYS[k] || 0), 0)
-  return `${dn} ${dn === 1 ? 'день' : dn < 5 ? 'дня' : 'дней'} · от ${esc(r.data.baseName)}${p.trip ? ' · с ночёвками' : ''} · ${st.stops} ${placesWord(st.stops)}${p.isles.length ? ' + острова' : ''} · в дороге ~${hm(st.drive)}`
+  return `${dn} ${dn === 1 ? 'день' : dn < 5 ? 'дня' : 'дней'} · от ${esc(r.data.baseName)} в ${clock(p.start || 480)}${p.trip ? ' · с ночёвками' + (p.next ? ', домой утром' : '') : ''} · ${st.stops} ${placesWord(st.stops)}${p.isles.length ? ' + острова' : ''} · в дороге ~${hm(st.drive)}`
 }
 function savedListHtml() {
   if (!routes.length) return ''
@@ -2311,9 +2321,12 @@ function renderRoute() {
       <div class="chips">${Object.keys(ROUTE_BASES).map(b => `<button class="chip ${route.base === b ? 'on' : ''}" data-rbase="${esc(b)}">${esc(b)}</button>`).join('')}<button class="chip ${route.base === '__me' ? 'on' : ''}" data-rme="1">📍 Где я сейчас</button></div>
       <h4>2. Сколько у вас времени</h4>
       <div class="chips">${ROUTE_TIMES.map(([v, n]) => `<button class="chip ${route.days === v ? 'on' : ''}" data-rdays="${v}">${n}</button>`).join('')}</div>
-      ${route.days >= 2 ? `<h4>3. Где ночуете</h4>
-      <div class="chips"><button class="chip ${route.stay !== 'trip' ? 'on' : ''}" data-rstay="home">🏠 Каждый вечер домой</button><button class="chip ${route.stay === 'trip' ? 'on' : ''}" data-rstay="trip">🛏 Ночую по пути, домой — в последний день</button></div>` : ''}
-      <h4>${route.days >= 2 ? 4 : 3}. Обязательные места</h4>
+      <h4>3. Во сколько выезжаете</h4>
+      <div class="chips">${ROUTE_STARTS.map(h => `<button class="chip ${(route.start || 8) === h ? 'on' : ''}" data-rstart="${h}">${h}:00</button>`).join('')}</div>
+      ${(route.start || 8) >= 10 ? '<p class="rnote">⚠️ Поздний выезд — меньше мест в день, пробки и толпы. Подробнее — в плане ниже.</p>' : ''}
+      ${route.days >= 1 ? `<h4>4. Где ночуете</h4>
+      <div class="chips"><button class="chip ${!route.stay || route.stay === 'home' || (route.stay === 'trip' && route.days < 2) ? 'on' : ''}" data-rstay="home">🏠 Каждый вечер домой</button>${route.days >= 2 ? `<button class="chip ${route.stay === 'trip' ? 'on' : ''}" data-rstay="trip">🛏 Ночую по пути, домой — вечером последнего дня</button>` : ''}<button class="chip ${route.stay === 'trip_next' ? 'on' : ''}" data-rstay="trip_next">🛏 Ночую по пути, домой — утром следующего дня</button></div>` : ''}
+      <h4>${route.days >= 1 ? 5 : 4}. Обязательные места</h4>
       ${must.length ? `<button class="linkbtn rreset" data-rreset="1">🔄 Сбросить маршрут</button><div class="rmust">${must.map(k => `<span class="${ISLAND_DAYS[k] ? 'isl' : ''}">${ISLAND_DAYS[k] ? '⛵ ' : ''}${esc(routeItem(k).title)}<button data-rtoggle="${esc(k)}" aria-label="Убрать">✕</button></span>`).join('')}</div>`
         : '<p class="rnote">Пока ничего не выбрано. Нажмите «＋ Добавить место» или кнопку «🧭 В маршрут» в карточке любого пляжа, храма, водопада или острова.</p>'}
       <details class="radd"${must.length ? '' : ' open'}><summary>＋ Добавить место</summary>
@@ -2646,7 +2659,7 @@ document.addEventListener('click', e => {
   if (e.target.closest('[data-rfavall]')) { const fk = new Set(favs.map(f => f.data.key)); ROUTE_SECS.forEach(id => { const sc = SECTIONS.find(x => x.id === id); sc.items.forEach(i => { const k = keyOf(sc, i); if (fk.has(k) && MAP_COORDS[k] && !route.must.includes(k)) route.must.push(k) }) }); saveRoute(); const y = scrollY; render(); scrollTo(0, y); toast('⭐ Места из «Моего списка» добавлены в маршрут'); return }
   if (e.target.closest('[data-rsave]')) return saveRouteCloud()
   if (e.target.closest('[data-rreset]')) { if (!confirm('Сбросить маршрут? Выбранные места уберутся. Сохранённые маршруты останутся в «Мои маршруты».')) return
-    route = { must:[], days:1, base:route.base, me:route.me, stay:'home', skip:[] }; saveRoute(); render(); toast('🔄 Маршрут сброшен — выбирайте места заново'); return window.scrollTo({ top:topOfPage() }) }
+    route = { must:[], days:1, base:route.base, me:route.me, stay:'home', start:route.start || 8, skip:[] }; saveRoute(); render(); toast('🔄 Маршрут сброшен — выбирайте места заново'); return window.scrollTo({ top:topOfPage() }) }
   const ro = e.target.closest('[data-ropen]'); if (ro) { routeView = { open:ro.dataset.ropen }; routeCmpA = ''; render(); return window.scrollTo({ top:topOfPage() }) }
   const re2 = e.target.closest('[data-redit]'); if (re2) { const r = routes.find(x => String(x.id) === re2.dataset.redit); if (r) { route = { ...r.data.params, skip:[...(r.data.params.skip || [])], must:[...r.data.params.must] }; saveRoute() } routeView = null; routeCmpA = ''; render(); toast('✏️ Маршрут в конструкторе — меняйте и сохраняйте как новый'); return window.scrollTo({ top:topOfPage() }) }
   const rdl = e.target.closest('[data-rdel]'); if (rdl) return deleteRouteCloud(rdl.dataset.rdel)
@@ -2654,6 +2667,7 @@ document.addEventListener('click', e => {
   const rcm = e.target.closest('[data-rcmp]'); if (rcm) { const id = rcm.dataset.rcmp; if (routeCmpA && routeCmpA !== id) { routeView = { cmp:[routeCmpA, id] }; routeCmpA = ''; render(); return window.scrollTo({ top:topOfPage() }) } routeCmpA = id; const y = scrollY; render(); scrollTo(0, y); return }
   if (e.target.closest('[data-rcmpcancel]')) { routeCmpA = ''; const y = scrollY; render(); scrollTo(0, y); return }
   if (e.target.closest('[data-rclose]')) { routeView = null; render(); return window.scrollTo({ top:topOfPage() }) }
+  const rst = e.target.closest('[data-rstart]'); if (rst) { route.start = +rst.dataset.rstart; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
   const rsy = e.target.closest('[data-rstay]'); if (rsy) { route.stay = rsy.dataset.rstay; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
   const rd = e.target.closest('[data-rdays]'); if (rd) { route.days = +rd.dataset.rdays; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
   const rm = e.target.closest('[data-rmust]'); if (rm) { route.must.push(rm.dataset.rmust); saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
