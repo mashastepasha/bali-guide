@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261111-0230">
+<meta name="build" content="20261111-0310">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -396,6 +396,8 @@
   .rsaved b { font-size:15.5px; } .rsaved small { display:block; color:var(--muted); font-size:12.5px; margin-top:2px; }
   .rsbtn { display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 12px; }
   .rsbtn .btn.on { background:#5E9E2F; color:#fff; }
+  .rreset { display:block; width:fit-content; margin:-2px 0 8px auto; font-size:13px; }
+  .btn.rreset2 { display:block; width:100%; font-size:14px; padding:10px; margin:0 0 8px; }
   .btn.rsave { display:block; width:100%; font-size:16px; font-weight:700; padding:12px; margin:4px 0 8px; background:var(--ink); color:#fff; border:0; }
   .rcmp { overflow-x:auto; margin:0 0 10px; }
   .rcmp table { width:100%; border-collapse:collapse; background:#fff; border-radius:12px; overflow:hidden; font-size:13.5px; }
@@ -2312,7 +2314,7 @@ function renderRoute() {
       ${route.days >= 2 ? `<h4>3. Где ночуете</h4>
       <div class="chips"><button class="chip ${route.stay !== 'trip' ? 'on' : ''}" data-rstay="home">🏠 Каждый вечер домой</button><button class="chip ${route.stay === 'trip' ? 'on' : ''}" data-rstay="trip">🛏 Ночую по пути, домой — в последний день</button></div>` : ''}
       <h4>${route.days >= 2 ? 4 : 3}. Обязательные места</h4>
-      ${must.length ? `<div class="rmust">${must.map(k => `<span class="${ISLAND_DAYS[k] ? 'isl' : ''}">${ISLAND_DAYS[k] ? '⛵ ' : ''}${esc(routeItem(k).title)}<button data-rtoggle="${esc(k)}" aria-label="Убрать">✕</button></span>`).join('')}</div>`
+      ${must.length ? `<button class="linkbtn rreset" data-rreset="1">🔄 Сбросить маршрут</button><div class="rmust">${must.map(k => `<span class="${ISLAND_DAYS[k] ? 'isl' : ''}">${ISLAND_DAYS[k] ? '⛵ ' : ''}${esc(routeItem(k).title)}<button data-rtoggle="${esc(k)}" aria-label="Убрать">✕</button></span>`).join('')}</div>`
         : '<p class="rnote">Пока ничего не выбрано. Нажмите «＋ Добавить место» или кнопку «🧭 В маршрут» в карточке любого пляжа, храма, водопада или острова.</p>'}
       <details class="radd"${must.length ? '' : ' open'}><summary>＋ Добавить место</summary>
         ${favLeft.length ? `<button class="btn" data-rfavall="1">⭐ Добавить все из моего списка (${favLeft.length})</button>` : ''}
@@ -2322,6 +2324,7 @@ function renderRoute() {
     ${plan ? `<h3>Ваш план · ${esc(ROUTE_TIMES.find(x => x[0] === route.days)[1])} · от: ${esc(baseName)}${plan.trip ? ' · с ночёвками в пути' : ''}</h3>
       ${planHtml(plan, new Set(route.must), false)}
       <button class="btn rsave" data-rsave="1">💾 Сохранить маршрут</button>
+      <button class="btn rreset2" data-rreset="1">🔄 Сбросить и составить новый</button>
       ${me && me.is_anonymous ? '<p class="rnote">Маршруты сохраняются на этом телефоне. Войдите в «Моём списке» — и они будут на всех ваших устройствах.</p>' : ''}
       <p class="rnote">🟢 — ваши обязательные места, 🟠 — что ещё есть рядом. Время в пути примерное: в час пик и в сезон дождей дорога бывает дольше. Выезд — 8:00, на Батур — ночью.${plan.trip ? ' Поездки на острова — отдельными днями, обычно с выездом из дома (лодки — из Санура и Серангана).' : ''}</p>` : ''}`
 }
@@ -2642,6 +2645,8 @@ document.addEventListener('click', e => {
   const rb = e.target.closest('[data-rbase]'); if (rb) { route.base = rb.dataset.rbase; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
   if (e.target.closest('[data-rfavall]')) { const fk = new Set(favs.map(f => f.data.key)); ROUTE_SECS.forEach(id => { const sc = SECTIONS.find(x => x.id === id); sc.items.forEach(i => { const k = keyOf(sc, i); if (fk.has(k) && MAP_COORDS[k] && !route.must.includes(k)) route.must.push(k) }) }); saveRoute(); const y = scrollY; render(); scrollTo(0, y); toast('⭐ Места из «Моего списка» добавлены в маршрут'); return }
   if (e.target.closest('[data-rsave]')) return saveRouteCloud()
+  if (e.target.closest('[data-rreset]')) { if (!confirm('Сбросить маршрут? Выбранные места уберутся. Сохранённые маршруты останутся в «Мои маршруты».')) return
+    route = { must:[], days:1, base:route.base, me:route.me, stay:'home', skip:[] }; saveRoute(); render(); toast('🔄 Маршрут сброшен — выбирайте места заново'); return window.scrollTo({ top:topOfPage() }) }
   const ro = e.target.closest('[data-ropen]'); if (ro) { routeView = { open:ro.dataset.ropen }; routeCmpA = ''; render(); return window.scrollTo({ top:topOfPage() }) }
   const re2 = e.target.closest('[data-redit]'); if (re2) { const r = routes.find(x => String(x.id) === re2.dataset.redit); if (r) { route = { ...r.data.params, skip:[...(r.data.params.skip || [])], must:[...r.data.params.must] }; saveRoute() } routeView = null; routeCmpA = ''; render(); toast('✏️ Маршрут в конструкторе — меняйте и сохраняйте как новый'); return window.scrollTo({ top:topOfPage() }) }
   const rdl = e.target.closest('[data-rdel]'); if (rdl) return deleteRouteCloud(rdl.dataset.rdel)
