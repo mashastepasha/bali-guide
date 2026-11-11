@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261111-2036">
+<meta name="build" content="20261111-2330">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -1702,6 +1702,16 @@ function renderLaundry(sec) {
 
 // Фото мест с Wikimedia Commons: ключ «раздел:название» → [ссылка, автор, лицензия, страница, подпись]
 const PHOTOS = {
+"beach:Пемутеран и риф Biorock": ["images/places/beach-1602476403633-8ff002ca5a81.jpg", "Biorock Indonesia", "Unsplash", "https://unsplash.com/photos/brown-and-black-fishes-under-water-RPaP0DoOcZQ", "Конструкция Biorock, обросшая кораллами"],
+"beach:Ловина": ["images/places/beach-1585643734412-05ea85526d11.jpg", "Pascal Müller", "Unsplash", "https://unsplash.com/photos/people-riding-on-white-and-green-boat-on-sea-during-daytime-WDBM22JVApk", "Лодка к дельфинам у Ловины"],
+"beach:Blue Lagoon (Паданг Бай)": ["images/places/beach-biru-lautan.jpg", "Eka Purna Sumeika", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:Biru_Lautan.jpg", "Бирюзовая вода Паданг Бая"],
+"spa:Горячие источники Банджар": ["images/places/spa-banjar-hot-spring-2816580048930-29.jpg", "Jumilla", "CC BY 2.0", "https://commons.wikimedia.org/wiki/File:Banjar_Hot_Spring_(16580048930).jpg", "Бассейны с драконами-фонтанами"],
+"trip:Монастырь Брахмавихара-Арама": ["images/places/trip-1566988563428-7598c2db6597.jpg", "Dominic Krainer", "Unsplash", "https://unsplash.com/photos/aerial-photography-of-gray-and-brown-concrete-building-surrounded-by-green-trees-jnpHhzhmxrw", "Мини-Боробудур в джунглях"],
+"trip:Храм Пура Пулаки": ["images/places/trip-pulaki-great-temple.jpg", "DayakSibiriak", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:Pulaki_Great_Temple.jpg", "Храм Пура Пулаки"],
+"trip:Деревня Тенганан": ["images/places/trip-geringsing-gadis-tenganan.jpg", "Kresnanta", "CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:Geringsing_Gadis_Tenganan.jpg", "Девушки Тенганана в ткани гринсинг", "62% 50%"],
+"trip:Водный дворец Таман Уджунг": ["images/places/trip-1761565899742-0cb666489b51.jpg", "Jayde Keroi", "Unsplash", "https://unsplash.com/photos/traditional-building-on-a-tranquil-lake-surrounded-by-lush-greenery-S41-r_Jsibk", "Павильон на пруду и море за ним"],
+"trip:Букит Асах": ["images/places/trip-1684545258380-5d5849eea81c.jpg", "Angga Prasetya", "Unsplash", "https://unsplash.com/photos/a-view-of-a-body-of-water-at-sunset-cyWrQgrQ4G0", "Закат над скалами Букит Асах"],
+"trip:Смотровая над бухтой Джемелук": ["images/places/trip-1643706914323-12e73d33ed43.jpg", "Spenser Sembrat", "Unsplash", "https://unsplash.com/photos/a-group-of-boats-floating-on-top-of-a-body-of-water-aZhvtAiEFEY", "Бухта Джемелук и вулкан Агунг"],
 "dive:Бухта Джемелук": ["images/places/dive-1583364493238-248032147fbd.jpg", "Subtle Cinematics", "Unsplash", "https://unsplash.com/photos/man-in-blue-shorts-diving-on-water-O5Fr1BZ-aR4", ""],
 "dive:Японский затонувший корабль (Банюнинг)": ["images/places/dive-1573553467420-b2a90be8d317.jpg", "Olga ga", "Unsplash", "https://unsplash.com/photos/sunken-ship-8uabPZmXJ4s", ""],
 "dive:Пирамиды Амеда (Turtle Point)": ["images/places/dive-1591025207163-942350e47db2.jpg", "David Courbit", "Unsplash", "https://unsplash.com/photos/brown-turtle-in-water-during-daytime-M8xxVih_V_U", ""],
