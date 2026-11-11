@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261111-2330">
+<meta name="build" content="20261112-0010">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -275,6 +275,9 @@
   .fact b { display:block; font-size:12px; text-transform:uppercase; letter-spacing:.4px; color:#8A6A35; margin-bottom:2px; }
 
   .chips { display:flex; gap:6px; flex-wrap:wrap; margin:0 0 14px; }
+  .chips.rsecs .chip small { opacity:.6; font-weight:600; margin-left:2px; }
+  h3.rsec { font-family:'Playfair Display', Georgia, serif; font-size:21px; margin:6px 0 6px; }
+  .btn.rgo { display:block; width:100%; margin:0 0 14px; text-align:center; }
   .chip { border:1px solid var(--line); background:#fff; border-radius:999px; padding:5px 11px;
           font-size:13px; cursor:pointer; font-family:inherit; color:var(--ink); }
   .chip.on { background:var(--ink); color:#fff; border-color:var(--ink); }
@@ -682,6 +685,11 @@ const THEME = {
   laundry:['starling',['#FFFFFF', '#E3E9F0', '#2F6FBF']],
   recs:  ['civet',   ['#CDB89A', '#3A2C20', '#8E7A62']],
   mine:  ['tiger',   ['#E2C29C', '#B88D60', '#2A1A10']],    // светлый тигр
+  south: ['turtle',  ['#E9B25C', '#9B5A1E', '#3A1D0B']],     // юг — морская черепаха, пляжи
+  center:['macaque', ['#B8A58C', '#7C6A55', '#E6DCCB']],     // центр — макаки Убуда
+  north: ['manta',   ['#2E6B5E', '#163A33', '#E8F4EF']],     // север — горные озёра
+  east:  ['python',  ['#C9B27A', '#3B2A17', '#1A120A']],     // восток — вулкан Агунг
+  west:  ['gecko',   ['#7FB07A', '#E35A3B', '#EAF2D8']],     // запад — рисовые поля и джунгли
 }
 
 document.head.append(Object.assign(document.createElement('style'), { textContent: [
@@ -2019,8 +2027,10 @@ function mapFocus(k) {
 
 function openInGuide(k) {
   const [sid, ...t] = k.split(':'), title = t.join(':')
-  const grp = HEALTH_SECS.some(x => x.id === sid) ? 'health' : sid
-  go(grp)
+  const grp = HEALTH_SECS.some(x => x.id === sid) ? 'health' : sid, rs = REGION_OF[k]
+  if (rs && !rs.length) go('islands')
+  else if (rs) goRegion(rs.includes(tab) ? tab : rs[0], sid)
+  else go(grp)
   setTimeout(() => { const h = [...view.querySelectorAll('.card h3')].find(x => x.firstChild && x.firstChild.textContent.trim() === title); if (h) h.closest('.card').scrollIntoView({ behavior:'smooth', block:'center' }) }, 700)
 }
 
@@ -2032,12 +2042,12 @@ const GROUPS = [
   { id:'docs', name:'Въезд и документы', icon:'🛂', hint:'Визы, сроки, страховка, деньги' },
   { id:'laws', name:'Законы и безопасность', icon:'🛡️', hint:'Что нельзя и чего остерегаться' },
   { id:'health', name:'Здоровье', icon:'🩺', hint:'Страховой случай, больницы, аптеки 24/7' },
-  { id:'move', name:'Транспорт', icon:'🛵', subs:['taxi', 'ride', 'drive'] },
-  { id:'sea', name:'Море', icon:'🏖️', subs:['beach', 'club', 'surf', 'dive'] },
-  { id:'eat', name:'Еда и бары', icon:'🍜', subs:['food', 'cafe', 'coffee', 'bars'] },
-  { id:'fun', name:'Активности', icon:'🎯', subs:['spa', 'exp', 'kids', 'pool'] },
-  { id:'shopping', name:'Шопинг', icon:'🛍️', subs:['shop', 'fashion', 'jewelry'] },
-  { id:'trip', name:'Красивые места', icon:'🌋', subs:['trip', 'falls', 'islands'] },
+  { id:'south', name:'Юг', icon:'🏄', region:1, hint:'Чангу, Семиньяк, Кута, Букит, Санур, Нуса Дуа' },
+  { id:'center', name:'Центр', icon:'🛕', region:1, hint:'Убуд, Гианьяр, Кинтамани и вулкан Батур' },
+  { id:'north', name:'Север', icon:'🌄', region:1, hint:'Ловина, Мундук, Бедугул, Пемутеран' },
+  { id:'east', name:'Восток', icon:'🌋', region:1, hint:'Сидемен, Кандидаса, Амед, Туламбен' },
+  { id:'west', name:'Запад', icon:'🌾', region:1, hint:'Табанан, Танах Лот, Медеви, Менджанган' },
+  { id:'islands', name:'Острова и поездки', icon:'⛵', subs:['islands'], hint:'Нуса Пенида, Гили, Ломбок, Ява, Флорес' },
   { id:'live', name:'Зимовка и быт', icon:'🏝️', subs:['winter', 'laundry'] },
   { id:'recs', name:'Рекомендасьёны из тредс/инстаграма', icon:'💬', hint:'Советы из Threads и Instagram' },
   { id:'mine', name:'Мой список', icon:'⭐', hint:'Избранное и свои места' },
@@ -2046,6 +2056,75 @@ const PAGES = { taxi:['🚕', 'Такси'], drive:['🪪', 'Права и во�
 const pageName = id => PAGES[id] || (s => s ? [s.icon, s.name] : ['', id])(SECTIONS.find(x => x.id === id))
 const groupOf = id => GROUPS.find(g => g.id === id || (g.subs || []).includes(id))
 const TABS = GROUPS
+
+// ── Районы ───────────────────────────────────────────────────
+// Места из разделов ниже показываются по районам: открыл «Восток» — видишь его пляжи, места, кафе и аренду
+const REGION_LEAD = {
+  south:'Чангу, Семиньяк, Кута, Букит с Улувату, Джимбаран, Санур и Нуса Дуа — пляжи, сёрф, бич-клабы, кафе и шопинг. Здесь живёт большинство туристов.',
+  center:'Убуд, Гианьяр, Кинтамани и вулкан Батур — рисовые террасы, храмы, водопады, СПА и кафе с видом на джунгли. От юга 1–1,5 часа.',
+  north:'Ловина, Мундук, Бедугул, Джатилувих и Пемутеран — горные озёра, водопады, дельфины, горячие источники и тихие пляжи с чёрным песком. От юга 2,5–3 часа.',
+  east:'Сидемен, Кандидаса, Паданг Бай, Амед и Туламбен — вулкан Агунг над рисовыми полями, древние деревни, снорклинг и дайвинг. От юга 2–3 часа.',
+  west:'Табанан: Танах Лот, Нуану, чёрные пляжи и сёрф Баляна и Медеви, остров Менджанган — меньше туристов, больше дикой природы.',
+}
+const REG_IDS = GROUPS.filter(g => g.region).map(g => g.id)
+const CATS = [
+  { id:'sea', name:'Море', icon:'🏖️', secs:['beach', 'club', 'surf', 'dive'] },
+  { id:'trip', name:'Красивые места', icon:'🌋', secs:['trip', 'falls', 'islands'] },
+  { id:'fun', name:'Активности', icon:'🎯', secs:['exp', 'spa', 'kids', 'pool'] },
+  { id:'eat', name:'Еда и бары', icon:'🍜', secs:['food', 'cafe', 'coffee', 'bars'] },
+  { id:'shopping', name:'Шопинг', icon:'🛍️', secs:['shop', 'fashion', 'jewelry'] },
+  { id:'move', name:'Транспорт', icon:'🛵', secs:['ride'], pages:['taxi', 'drive'] },
+]
+const REG_SECS = CATS.flatMap(c => c.secs)
+const catOf = id => CATS.find(c => c.secs.includes(id) || (c.pages || []).includes(id))
+// Район по названию района в карточке; если неясно — по координатам
+const REG_RULES = [
+  [[], /^(Остров|Рядом с Ломбоком|Соседний остров|Флорес|Ломбок|Индонезия)/],
+  [['south', 'center'], /^Юг и Убуд/],
+  [['west', 'north'], /^Запад, нацпарк/],
+  [['south'], /^Бали( \(уточняйте по карте\))?$/],
+  [['south'], /^(Чангу|Букит|Семиньяк|Кута|Легиан|Санур|Улувату|Джимбаран|Нуса Дуа|Денпасар|Бинжин|Унгасан|Керобокан|Серанган|Паданг-Паданг|Юг|Аэропорт|Переренан|Берава|Умалас|Пецату)/],
+  [['north'], /^(Табанан \(Ментинг|Север|Ловина|Мундук|Бедугул|Сингараджа|Ванагири|Пемутеран|Банджар)/],
+  [['east'], /^(Восток|Амед|Туламбен|Сидемен|Карангасем|Кубу|Ренданг|Клунгкунг|Склоны вулкана Агунг|Паданг Бай|Кандидас|Бесаких)/],
+  [['west'], /^(Запад|Табанан|Нуану|Медеви|Негара|Балиан)/],
+  [['center'], /^(Убуд|Кинтамани|Гианьяр|Тампаксиринг|Бангли|Петанг|Центр Убуда|Тегаллаланг|Паянган)/],
+]
+function regionByPt(p) {
+  const [lat, lng] = p
+  if (lat > -8.31) return 'north'
+  if (lng > 115.43) return 'east'
+  if (lng < 115.08) return 'west'
+  if (lat < -8.6 || (lat < -8.55 && lng < 115.2)) return lng < 115.12 ? 'west' : 'south'
+  return 'center'
+}
+const REGION_OF = {}
+function buildRegions() { SECTIONS.filter(s => REG_SECS.includes(s.id)).forEach(s => s.items.forEach(i => {
+  const k = keyOf(s, i), p = MAP_COORDS[k], rule = REG_RULES.find(([, re]) => re.test(i.area))
+  let r = rule ? rule[0] : p ? [regionByPt(p)] : REG_IDS
+  // горный Табанан (Джатилувих, Бедугул, Ментинг) — это уже север
+  if (r.length === 1 && r[0] === 'west' && p && p[0] > -8.47 && p[1] > 115.0) r = ['north']
+  REGION_OF[k] = r
+})) }
+const inRegion = (sec, i, r) => !REG_SECS.includes(sec.id) || (REGION_OF[keyOf(sec, i)] || []).includes(r)
+const regItems = (sid, r) => { const s = SECTIONS.find(x => x.id === sid); return s ? s.items.filter(i => inRegion(s, i, r)) : [] }
+const catCount = (c, r) => c.secs.reduce((n, id) => n + regItems(id, r).length, 0)
+const defaultSub = (r, c) => { const cs = c ? [c] : CATS.filter(x => catCount(x, r)); const cat = cs[0] || CATS[0]; return cat.secs.find(id => regItems(id, r).length) || (cat.pages || [])[0] || cat.secs[0] }
+// Подпись района на кнопках-фильтрах: «Север, Ловина» → «Ловина»
+function areaLabel(a) { const p = a.split(/ \/ |, | \(/); return /^(Север|Восток|Запад|Юг|Восток острова|Север Бали)$/.test(p[0]) && p[1] ? p[1] : p[0] }
+
+function renderRegion(r) {
+  const g = GROUPS.find(x => x.id === r), cat = catOf(sub) || CATS[0]
+  const cats = CATS.filter(c => catCount(c, r) || c.pages)
+  const total = CATS.reduce((n, c) => n + catCount(c, r), 0)
+  const ready = typeof READY_ROUTES !== 'undefined' && READY_ROUTES.find(x => x.id === r)
+  const secs = cat.secs.filter(id => regItems(id, r).length)
+  return `<h2>${g.icon} ${g.name}</h2>
+    <p class="lead">${REGION_LEAD[r]} В гайде здесь ${total} ${placesWord(total)}.</p>
+    ${ready ? `<button class="btn rgo" data-rready-go="${ready.id}">🗺️ Готовый маршрут «${esc(ready.name)}»</button>` : ''}
+    <div class="hs sub"><button class="arr l" data-arr="-1" aria-label="Листать влево">‹</button><div class="subnav">${cats.map(c => `<button class="${c === cat ? 'on' : ''}" data-rcat="${c.id}">${c.icon} ${c.name}</button>`).join('')}</div><button class="arr r" data-arr="1" aria-label="Листать вправо">›</button></div>
+    ${secs.length + (cat.pages || []).length > 1 ? `<div class="chips rsecs">${secs.map(id => { const [ic, nm] = pageName(id); return `<button class="chip ${id === sub ? 'on' : ''}" data-sub="${id}">${ic} ${nm} <small>${regItems(id, r).length}</small></button>` }).join('')}${(cat.pages || []).map(id => { const [ic, nm] = pageName(id); return `<button class="chip ${id === sub ? 'on' : ''}" data-sub="${id}">${ic} ${nm}</button>` }).join('')}</div>` : ''}
+    ${(cat.pages || []).includes(sub) ? renderPage(sub) : renderSection(SECTIONS.find(s => s.id === sub), r)}`
+}
 
 // ── Состояние ────────────────────────────────────────────────
 let tab = 'home', sub = '', areaFilter = '', query = ''
@@ -2075,7 +2154,18 @@ function renderTabs() {
   }).join('')
 }
 
+function goRegion(r, id) {
+  tab = r; sub = id && (catOf(id) && (regItems(id, r).length || (catOf(id).pages || []).includes(id))) ? id : defaultSub(r, id && catOf(id))
+  areaFilter = ''; query = ''
+  document.getElementById('q').value = ''
+  render(); remember()
+  const el = document.querySelector(`#tabs [data-tab="${tab}"]`)
+  if (el) el.scrollIntoView({ inline:'center', block:'nearest' })
+  window.scrollTo({ top: topOfPage(), behavior:'smooth' })
+}
 function go(id) {
+  if (REG_IDS.includes(id)) return goRegion(id)
+  if (!GROUPS.some(x => x.id === id) && (REG_SECS.includes(id) || ['taxi', 'drive'].includes(id))) return goRegion(REG_IDS.includes(tab) ? tab : 'south', id)
   const g = groupOf(id) || GROUPS[0]
   tab = g.id; sub = g.subs ? (g.subs.includes(id) ? id : g.subs[0]) : ''
   areaFilter = ''; query = ''
@@ -2680,14 +2770,15 @@ function miniList(sec, list) {
   }).join('')}</div>`).join('')}`
 }
 
-function renderSection(sec) {
-  const areas = [...new Set(sec.items.map(i => i.area.split(/ \/ |, | \(/)[0]))]
+function renderSection(sec, reg) {
+  const all = reg ? sec.items.filter(i => inRegion(sec, i, reg)) : sec.items
+  const areas = [...new Set(all.map(i => areaLabel(i.area)))]
   const black = i => i.feats.some(f => f.startsWith('⚫'))
-  const items = sec.items.filter(i => !areaFilter || (areaFilter === '__black' ? black(i) : i.area.startsWith(areaFilter)))
-  return `<h2>${sec.icon} ${sec.name}</h2>
+  const items = all.filter(i => !areaFilter || (areaFilter === '__black' ? black(i) : areaLabel(i.area) === areaFilter))
+  return `<h${reg ? 3 : 2} class="${reg ? 'rsec' : ''}">${sec.icon} ${sec.name}</h${reg ? 3 : 2}>
     <p class="lead">${ownTxt(sec.lead)}</p>
     ${sec.id === 'islands' ? `<h4>🧭 Как добраться самостоятельно</h4>${ISLANDS_HOWTO.map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')}<h4>🚢 Как добраться до Явы</h4>${JAVA_HOWTO.map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')}<h4>📍 Куда поехать</h4>` : ''}
-    <div class="chips"><button class="chip ${!areaFilter ? 'on' : ''}" data-area="">Все</button>${sec.id === 'beach' ? `<button class="chip ${areaFilter === '__black' ? 'on' : ''}" data-area="__black">⚫ Чёрный песок</button>` : ''}${areas.map(a => `<button class="chip ${areaFilter === a ? 'on' : ''}" data-area="${esc(a)}">${esc(a)}</button>`).join('')}</div>
+    ${areas.length < 2 && !(sec.id === 'beach' && all.some(black)) ? '' : `<div class="chips"><button class="chip ${!areaFilter ? 'on' : ''}" data-area="">Все</button>${sec.id === 'beach' ? `<button class="chip ${areaFilter === '__black' ? 'on' : ''}" data-area="__black">⚫ Чёрный песок</button>` : ''}${areas.map(a => `<button class="chip ${areaFilter === a ? 'on' : ''}" data-area="${esc(a)}">${esc(a)}</button>`).join('')}</div>`}
     <div class="cards">${items.filter(i => !i.mini).map((i, n) => [i, n]).sort((a, b) => (!PHOTOS[keyOf(sec, b[0])] - !PHOTOS[keyOf(sec, a[0])]) * -1 || a[1] - b[1]).map(([i]) => card(sec, i)).join('')}</div>
     ${miniList(sec, items.filter(i => i.mini))}
     <div class="note">Цены и часы работы — ориентир на 2026 год. Перед поездкой уточняйте в Google Maps или Instagram заведения.</div>`
@@ -2785,7 +2876,7 @@ function render() {
   if (query) { view.innerHTML = renderSearch(); return }
   if (tab === 'home') { view.innerHTML = renderHome(); return }
   const g = groupOf(tab)
-  view.innerHTML = `<button class="back" data-back="1">← Назад</button>` + (g.subs ? subnav(g) + renderPage(sub) : renderPage(tab))
+  view.innerHTML = `<button class="back" data-back="1">← Назад</button>` + (g.region ? renderRegion(tab) : g.subs ? subnav(g) + renderPage(sub) : renderPage(tab))
   if (tab === 'map') setTimeout(drawMap, 0)
   updArrows()
   if (typeof cubEl !== 'undefined' && cubEl) { cubStop(); setTimeout(cubOnScroll, 60) }
@@ -2804,7 +2895,7 @@ function updArrows() {
 function remember() {
   const h = history.state
   if (h && h.tab === tab && h.sub === sub) return
-  history.pushState({ tab, sub, d:(h && h.d || 0) + 1 }, '', tab === 'home' ? location.pathname : '#' + (sub || tab))
+  history.pushState({ tab, sub, d:(h && h.d || 0) + 1 }, '', tab === 'home' ? location.pathname : '#' + (REG_IDS.includes(tab) ? tab + '-' + sub : sub || tab))
 }
 window.addEventListener('popstate', e => {
   const st = e.state || { tab:'home', sub:'' }
@@ -2826,6 +2917,8 @@ document.addEventListener('click', e => {
   const ar = e.target.closest('[data-arr]'); if (ar) { const r = ar.parentElement.querySelector('.row, .subnav'); return r.scrollBy({ left: ar.dataset.arr * r.clientWidth * .7, behavior:'smooth' }) }
   const bk = e.target.closest('[data-back]'); if (bk) return history.state && history.state.d > 0 ? history.back() : go('home')
   const t = e.target.closest('[data-tab]'); if (t) return go(t.dataset.tab)
+  const rc = e.target.closest('[data-rcat]'); if (rc) { sub = defaultSub(tab, CATS.find(c => c.id === rc.dataset.rcat)); areaFilter = ''; render(); remember(); const y = document.querySelector('.rsecs, .cards, h3.rsec'); return }
+  const rg = e.target.closest('[data-rready-go]'); if (rg) { routeView = { ready:rg.dataset.rreadyGo }; return go('route') }
   const rt = e.target.closest('[data-route]'); if (rt) { const k = rt.dataset.route; route.must = route.must.includes(k) ? route.must.filter(x => x !== k) : [...route.must, k]; saveRoute(); const y = scrollY; render(); scrollTo(0, y); if (route.must.includes(k)) toast('🧭 Добавлено в маршрут — откройте раздел «Маршрут»'); return }
   const rtg = e.target.closest('[data-rtoggle]'); if (rtg) { const k = rtg.dataset.rtoggle; route.must = route.must.includes(k) ? route.must.filter(x => x !== k) : [...route.must, k]; saveRoute(); const y = scrollY, op = !!document.querySelector('.radd[open]'), q = (document.getElementById('rq') || {}).value || ''; render(); if (op) { const d = document.querySelector('.radd'); d.open = true; const i = document.getElementById('rq'); i.value = q; i.dispatchEvent(new Event('input')) } scrollTo(0, y); return }
   const rb = e.target.closest('[data-rbase]'); if (rb) { route.base = rb.dataset.rbase; saveRoute(); const y = scrollY; render(); scrollTo(0, y); return }
@@ -3220,8 +3313,12 @@ addEventListener('scroll', cubOnScroll, { passive:true })
 addEventListener('resize', cubOnScroll)
 
 // Открыть сразу нужный раздел по ссылке вида …/#beach
+buildRegions()
 const start = location.hash.slice(1)
-if (start && groupOf(start)) { const g = groupOf(start); tab = g.id; sub = g.subs ? (g.subs.includes(start) ? start : g.subs[0]) : '' }
+const [sr, ss] = start.split('-')
+if (REG_IDS.includes(sr)) { tab = sr; sub = ss && catOf(ss) ? ss : defaultSub(sr) }
+else if (start && !GROUPS.some(x => x.id === start) && REG_SECS.includes(start)) { tab = 'south'; sub = regItems(start, 'south').length ? start : defaultSub('south', catOf(start)) }
+else if (start && groupOf(start)) { const g = groupOf(start); tab = g.id; sub = g.subs ? (g.subs.includes(start) ? start : g.subs[0]) : '' }
 history.replaceState({ tab, sub, d:0 }, '')
 render()
 ensureUser()
