@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261112-1300">
+<meta name="build" content="20261112-1530">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -279,6 +279,25 @@
   h3.rsec { font-family:'Playfair Display', Georgia, serif; font-size:21px; margin:6px 0 6px; }
   .jroute .rstop i { width:auto; min-width:44px; padding:0 6px; border-radius:10px; font-size:12px; }
   .jroute .rday { margin-top:10px; }
+  .itiles { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:0 0 16px; }
+  .itile { position:relative; border:0; padding:0; border-radius:16px; overflow:hidden; background:#2B1D14; aspect-ratio:4/5; cursor:pointer; text-align:left; box-shadow:0 4px 14px rgba(43,29,20,.15); }
+  .itile img, .itile .ic { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:flex; align-items:center; justify-content:center; font-size:46px; filter:saturate(1.12) contrast(1.04); }
+  .itile .it { position:absolute; left:0; right:0; bottom:0; padding:28px 10px 10px; background:linear-gradient(transparent, rgba(0,0,0,.72)); color:#fff; }
+  .itile .it b { display:block; font-family:'Playfair Display', Georgia, serif; font-size:19px; line-height:1.15; }
+  .itile .it span { display:block; font-size:12px; opacity:.9; margin-top:2px; line-height:1.25; }
+  .itile .it em { display:inline-block; font-style:normal; font-size:11px; font-weight:800; background:#E8B500; color:#2B1D14; border-radius:8px; padding:2px 6px; margin-top:5px; }
+  .ibig { display:block; width:100%; margin:4px 0 14px; padding:16px 14px; border:0; border-radius:16px; cursor:pointer; text-align:center;
+    background:linear-gradient(135deg, #E07A1F, #C2416F); color:#fff; font-size:19px; font-weight:800; box-shadow:0 6px 18px rgba(43,29,20,.2); }
+  .ibig small { display:block; font-size:12.5px; font-weight:600; opacity:.92; margin-top:3px; }
+  .ibig.on { box-shadow:0 0 0 3px #2B1D14, 0 6px 18px rgba(43,29,20,.2); }
+  details.jroute { background:#fff; border-radius:16px; margin:0 0 12px; box-shadow:0 4px 16px rgba(43,29,20,.12); overflow:hidden; }
+  details.jroute > summary { list-style:none; display:flex; gap:12px; align-items:center; padding:14px; cursor:pointer; background:linear-gradient(135deg, #2E6B5E, #163A33); color:#fff; }
+  details.jroute > summary::-webkit-details-marker { display:none; }
+  details.jroute > summary .ji { font-size:30px; }
+  details.jroute > summary b { display:block; font-size:16.5px; line-height:1.25; }
+  details.jroute > summary small { display:block; font-size:12.5px; opacity:.85; margin-top:2px; }
+  details.jroute[open] > summary small { display:none; }
+  details.jroute > .a { padding:12px 12px 4px; }
   .btn.rgo { display:block; width:100%; margin:0 0 14px; text-align:center; }
   .chip { border:1px solid var(--line); background:#fff; border-radius:999px; padding:5px 11px;
           font-size:13px; cursor:pointer; font-family:inherit; color:var(--ink); }
@@ -2062,8 +2081,9 @@ function mapFocus(k) {
 
 function openInGuide(k) {
   const [sid, ...t] = k.split(':'), title = t.join(':')
-  const grp = HEALTH_SECS.some(x => x.id === sid) ? 'health' : sid, rs = REGION_OF[k]
-  if (rs && !rs.length) go('islands')
+  const grp = HEALTH_SECS.some(x => x.id === sid) ? 'health' : sid, rs = REGION_OF[k], io = islandOf(k)
+  if (io) { go(io[0].id); icat = io[1]; render() }
+  else if (rs && !rs.length) go('islands')
   else if (rs) goRegion(rs.includes(tab) ? tab : rs[0], sid)
   else go(grp)
   setTimeout(() => { const h = [...view.querySelectorAll('.card h3')].find(x => x.firstChild && x.firstChild.textContent.trim() === title); if (h) h.closest('.card').scrollIntoView({ behavior:'smooth', block:'center' }) }, 700)
@@ -2082,12 +2102,12 @@ const GROUPS = [
   { id:'north', name:'Север', icon:'🌄', region:1, hint:'Ловина, Мундук, Бедугул, Пемутеран' },
   { id:'east', name:'Восток', icon:'🌋', region:1, hint:'Сидемен, Кандидаса, Амед, Туламбен' },
   { id:'west', name:'Запад', icon:'🌾', region:1, hint:'Табанан, Танах Лот, Балиан, Медеви' },
-  { id:'islands', name:'Острова и поездки', icon:'⛵', subs:['islands', 'java'], hint:'Ява, Нуса Пенида, Гили, Менджанган, Ломбок, Флорес' },
+  { id:'islands', name:'Острова и поездки', icon:'⛵', subs:['islands', 'java', 'penida', 'lembongan', 'gili', 'lombok', 'komodo', 'menjangan', 'sumba'], hint:'Ява, Нуса Пенида, Гили, Менджанган, Ломбок, Флорес' },
   { id:'live', name:'Зимовка и быт', icon:'🏝️', subs:['winter', 'laundry'] },
   { id:'recs', name:'Рекомендасьёны из тредс/инстаграма', icon:'💬', hint:'Советы из Threads и Instagram' },
   { id:'mine', name:'Мой список', icon:'⭐', hint:'Избранное и свои места' },
 ]
-const PAGES = { taxi:['🚕', 'Такси'], drive:['🪪', 'Права и вождение'], winter:['🏝️', 'Зимовка'] }
+const PAGES = { taxi:['🚕', 'Такси'], drive:['🪪', 'Права и вождение'], winter:['🏝️', 'Зимовка'], islands:['⛵', 'Все острова'], java:['🌋', 'Ява'], penida:['🏝️', 'Нуса Пенида'], lembongan:['🌊', 'Нуса Лембонган'], gili:['🐢', 'Гили'], lombok:['⛰️', 'Ломбок'], komodo:['🦎', 'Комодо'], menjangan:['🐠', 'Менджанган'], sumba:['🐎', 'Сумба'] }
 const pageName = id => PAGES[id] || (s => s ? [s.icon, s.name] : ['', id])(SECTIONS.find(x => x.id === id))
 const groupOf = id => GROUPS.find(g => g.id === id || (g.subs || []).includes(id))
 const TABS = GROUPS
@@ -2161,7 +2181,7 @@ function renderRegion(r) {
 }
 
 // ── Состояние ────────────────────────────────────────────────
-let tab = 'home', sub = '', areaFilter = '', query = ''
+let tab = 'home', sub = '', areaFilter = '', query = '', icat = ''
 let favs = [], places = [], cloudOk = null
 // Владелец гайда: только он видит пометки «📌 из подборки» (места при этом видны всем)
 const OWNER_IDS = ['07b9d67d-3c5d-4221-b52c-6615f93960ea']
@@ -2198,6 +2218,7 @@ function goRegion(r, id) {
   window.scrollTo({ top: topOfPage(), behavior:'smooth' })
 }
 function go(id) {
+  icat = ''
   if (REG_IDS.includes(id)) return goRegion(id)
   if (!GROUPS.some(x => x.id === id) && (REG_SECS.includes(id) || ['taxi', 'drive'].includes(id))) return goRegion(REG_IDS.includes(tab) ? tab : 'south', id)
   const g = groupOf(id) || GROUPS[0]
@@ -2805,25 +2826,18 @@ function miniList(sec, list) {
 }
 
 // ── Ява: готовые маршруты и справка ──────────────────────────
-const JAVA_GROUPS = [
-  ['🌋 Вулканы, водопады и лес', ['Кратер Иджен', 'Вулкан Бромо', 'Смотровая Seruni Point', 'Лес De Djawatan', 'Водопад Тумпак Севу', 'Водопад Kapas Biru']],
-  ['🧭 Что ещё рядом', ['Водопад Джагир', 'Деревня Кемирен', 'Водопад Мадакарипура', 'Нацпарк Баулуран']],
-  ['🛕 Центральная Ява — отдельная поездка', ['Храм Боробудур']],
-  ['🛏 Где жить и поесть', ["L'JAVAS VILLAS", '1911 Cafe & Resto', 'KOPIKUIN BROMO']],
-  ['⛴️ Дорога', ['Паромный порт Гилиманук', 'Паромный порт Кетапанг', 'Mutia Rental — прокат авто']],
-]
 const J = t => 'java:' + t
 const JAVA_ROUTES = [
-  { id:'j3', icon:'🌋', name:'Иджен + лес De Djawatan + Бромо — 3 дня', how:'На машине через паром Гилиманук → Кетапанг. Тяжело, но реально — хорошо, если за рулём можно меняться.', days:[
+  { id:'j3', icon:'🌋', short:'3 дня: Иджен + Бромо', name:'Иджен + лес De Djawatan + Бромо — 3 дня', how:'На машине через паром Гилиманук → Кетапанг. Тяжело, но реально — хорошо, если за рулём можно меняться.', days:[
     { t:'Дорога на Яву', steps:[['10:00', 'Выезд из Чангу — до порта 3–4 часа'], ['13:30', 'Паром Гилиманук → Кетапанг, с очередью 1,5–2 часа', J('Паромный порт Гилиманук')], ['15:30', 'Кетапанг (на Яве на час меньше). По пути — водопад Джагир или деревня Кемирен', J('Водопад Джагир')], ['19:00', 'Ужин в 1911 Cafe & Resto', J('1911 Cafe & Resto')]], stay:J("L'JAVAS VILLAS"), tip:'Ложитесь пораньше: выезд в 00:30. Справку о здоровье можно сделать в медпункте у тропы.' },
     { t:'Иджен ночью, лес и дорога к Бромо', steps:[['00:30', 'Выезд к парковке Палтудинг — 40–50 минут'], ['01:30', 'Подъём ~1,5–2 часа: «голубой огонь» (спуск — только с гидом) и рассвет на краю кратера', J('Кратер Иджен')], ['08:00', 'Спуск, душ и завтрак в отеле'], ['10:30', 'Лес De Djawatan — около часа', J('Лес De Djawatan')], ['11:30', 'Дорога к Бромо 5–6 часов. Вместо леса можно заехать в саванну Баулуран — она прямо по пути', J('Нацпарк Баулуран')]], stay:J('KOPIKUIN BROMO'), tip:'Джип на рассвет закажите у хозяина жилья заранее. Ночёвка — в Чеморо-Лаванге или Сапикерепе.' },
     { t:'Рассвет у Бромо и домой', steps:[['03:30', 'Джип: рассвет на смотровой Seruni или Пенанджакан', J('Смотровая Seruni Point')], ['06:00', 'Песчаное море и саванна (кратер сейчас закрыт)', J('Вулкан Бромо')], ['10:00', 'Выезд — до Кетапанга около 6 часов'], ['16:30', 'Паром на Бали', J('Паромный порт Кетапанг')], ['22:00', 'Дома']], tip:'Хотите ещё и Тумпак Севу — добавьте 4-й день: после Бромо 3–3,5 часа до водопада, ночёвка там, утром Тумпак Севу и Kapas Biru, потом 5–6 часов до парома.' },
   ]},
-  { id:'j2i', icon:'💙', name:'Только Иджен — 2 дня', how:'Самый спокойный вариант на машине с паромом.', days:[
+  { id:'j2i', icon:'💙', short:'2 дня: Иджен', name:'Только Иджен — 2 дня', how:'Самый спокойный вариант на машине с паромом.', days:[
     { t:'Дорога и водопады', steps:[['10:00', 'Выезд из Чангу'], ['13:30', 'Паром Гилиманук → Кетапанг', J('Паромный порт Гилиманук')], ['15:30', 'Водопад Джагир (до 16:30) или деревня Кемирен', J('Водопад Джагир')], ['19:00', 'Ужин в 1911 Cafe & Resto', J('1911 Cafe & Resto')]], stay:J("L'JAVAS VILLAS") },
     { t:'Иджен и обратно', steps:[['00:30', 'Выезд на Палтудинг'], ['01:30', 'Подъём, «голубой огонь» и рассвет', J('Кратер Иджен')], ['08:00', 'Спуск и завтрак'], ['10:30', 'По желанию — лес De Djawatan (+2–3 часа вместе с дорогой)', J('Лес De Djawatan')], ['13:00', 'Паром на Бали', J('Паромный порт Кетапанг')], ['18:00', 'Дома (с лесом — около 21:00)']] },
   ]},
-  { id:'j2b', icon:'🌄', name:'Только Бромо — 2 дня', how:'Лучше самолётом: Денпасар → Сурабая около часа, много рейсов, ~40–90 $ в одну сторону. На машине с паромом — около 20 часов за рулём за два дня, не советуем.', days:[
+  { id:'j2b', icon:'🌄', short:'2 дня: Бромо', name:'Только Бромо — 2 дня', how:'Лучше самолётом: Денпасар → Сурабая около часа, много рейсов, ~40–90 $ в одну сторону. На машине с паромом — около 20 часов за рулём за два дня, не советуем.', days:[
     { t:'Перелёт и водопад', steps:[['08:00', 'Рейс Денпасар → Сурабая'], ['10:00', 'Машина с водителем от аэропорта — 2,5–3 часа'], ['13:00', 'Водопад Мадакарипура по пути', J('Водопад Мадакарипура')], ['16:00', 'Заселение у Бромо, договориться о джипе']], stay:J('KOPIKUIN BROMO') },
     { t:'Рассвет и обратно', steps:[['03:30', 'Джип: рассвет на Seruni или Пенанджакан', J('Смотровая Seruni Point')], ['06:00', 'Песчаное море и саванна', J('Вулкан Бромо')], ['10:00', 'Выезд в аэропорт Сурабаи — 2,5–3 часа'], ['15:00', 'Рейс на Бали']] },
   ]},
@@ -2835,9 +2849,9 @@ const JAVA_INFO = [
   { q:'🎒 Что взять с собой', a:`<ul><li><b>Тёплое:</b> ночью на краю Иджена и на смотровых Бромо 0–10 °C, в июле–августе бывает иней. Пуховка или флис, шапка, перчатки.</li><li><b>Обувь</b> с цепкой подошвой — тропа на Иджене крутая и песчаная; на Тумпак Севу — аквашузы.</li><li><b>Противогаз</b> на Иджене (напрокат у тропы ~45 000 Rp) — с фильтром, а не тканевая маска.</li><li><b>Бафф или маска</b> от пыли и пепла на Бромо, солнечные очки.</li><li><b>Налобный фонарь</b> — на тропе нет света. Вода 1–1,5 литра.</li><li><b>Справка о здоровье</b> для Иджена — медпункт у тропы (давление и пульс) или клиника в Баньюванги не раньше чем за 3 дня.</li><li>Паспорт, права, документы на машину.</li></ul>` },
   { q:'🙏 Правила на вулканах', a:`<ul><li><b>Иджен:</b> не подходите к краю и к берегу кислотного озера; если накрыло облаком газа — уходите из него и не задерживайтесь; слушайтесь рейнджеров. Шахтёрам с корзинами серы уступайте дорогу; фото — с разрешения, многие ждут небольшие чаевые. Никакого огня.</li><li><b>Бромо:</b> это святыня народа тенгер — подношения не трогайте, не мусорьте, не сходите с троп. Не заходите за ограждение кратера и не нарушайте закрытые зоны. Ничего, что может вызвать пожар. Дроны ограничены.</li><li>Ява — в основном мусульманская: одевайтесь скромнее, чем на Бали.</li></ul>` },
 ]
-function javaRouteHtml(r) {
+function javaRouteHtml(r, open) {
   const pt = k => MAP_COORDS[k] && MAP_COORDS[k].slice(0, 2).join(',')
-  return `<details class="qa jroute"><summary>${r.icon} ${esc(r.name)}</summary><div class="a"><p>${esc(r.how)}</p>
+  return `<details class="jroute"${open ? ' open' : ''}><summary><span class="ji">${r.icon}</span><span><b>${esc(r.name)}</b><small>${esc(r.short)} · нажмите, чтобы открыть план по дням</small></span></summary><div class="a"><p>${esc(r.how)}</p>
     ${r.days.map((d, i) => { const pts = [...d.steps.map(s => s[2]), d.stay].filter(Boolean).map(pt).filter(Boolean)
       return `<div class="rday"><b>День ${i + 1} · ${esc(d.t)}</b><div class="rin">
       ${d.steps.map(([tm, tx, k]) => `<div class="rstop"><i>${tm}</i><div>${k ? `<a href="#" data-mopen="${esc(k)}">${esc(tx)}</a>` : esc(tx)}</div></div>`).join('')}
@@ -2845,16 +2859,58 @@ function javaRouteHtml(r) {
       ${d.tip ? `<p class="rtip">💡 ${esc(d.tip)}</p>` : ''}
       ${pts.length > 1 ? `<a class="btn" href="https://www.google.com/maps/dir/${pts.join('/')}" target="_blank" rel="noopener">🗺️ Маршрут дня в Google Картах</a>` : ''}</div></div>` }).join('')}</div></details>`
 }
-function renderJava(sec) {
-  const byT = t => sec.items.find(i => i.title === t)
-  return `<h2>${sec.icon} ${sec.name}</h2>
-    <p class="lead">${sec.lead}</p>
-    <div class="rwarn">⚠️ 5 ноября 2026 вулкан Бромо извергся — к кратеру подходить нельзя, смотровые и песчаное море открыты. Перед поездкой проверьте статус вулканов (ниже — где).</div>
-    <h4>🗺️ Готовые маршруты</h4>${JAVA_ROUTES.map(javaRouteHtml).join('')}
-    <h4>💡 Самостоятельно: что важно знать</h4>${JAVA_INFO.map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')}
-    <h4>🚢 Как добраться до Явы</h4>${JAVA_HOWTO.map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')}
-    ${JAVA_GROUPS.map(([g, ts]) => `<h4>${g}</h4><div class="cards">${ts.map(byT).filter(Boolean).map(i => card(sec, i)).join('')}</div>`).join('')}
-    <div class="note">Цены и правила — по данным на ноябрь 2026. Вулканы и паромы часто меняют расписание — проверяйте перед выездом.</div>`
+const I = t => 'islands:' + t
+const ISLANDS = [
+  { id:'java', icon:'🌋', name:'Ява', hint:'Иджен, Бромо, Тумпак Севу, лес De Djawatan', photo:J('Кратер Иджен'), routes:JAVA_ROUTES, also:[I('Вулканы Бромо и Иджен')],
+    lead:'Иджен с «голубым огнём», рассвет у вулкана Бромо, сказочный лес De Djawatan и водопад Тумпак Севу — Восточная Ява рядом с Бали: паром 1 час. Это отдельная поездка: Ява лежит к западу от Бали, а Ломбок, Гили и Комодо — к востоку.',
+    warn:'5 ноября 2026 вулкан Бромо извергся — к кратеру подходить нельзя, смотровые и песчаное море открыты. Перед поездкой проверьте статус вулканов (в «Советах»).',
+    cats:[
+      { id:'see', icon:'🌋', name:'Вулканы и водопады', keys:['Кратер Иджен', 'Вулкан Бромо', 'Смотровая Seruni Point', 'Лес De Djawatan', 'Водопад Тумпак Севу', 'Водопад Kapas Biru'].map(J) },
+      { id:'near', icon:'🧭', name:'Ещё на Яве', keys:['Водопад Джагир', 'Деревня Кемирен', 'Водопад Мадакарипура', 'Нацпарк Баулуран', 'Храм Боробудур'].map(J) },
+      { id:'eat', icon:'🍽', name:'Где поесть', keys:['1911 Cafe & Resto'].map(J) },
+      { id:'sleep', icon:'🛏', name:'Где переночевать', keys:["L'JAVAS VILLAS", 'KOPIKUIN BROMO'].map(J) },
+      { id:'road', icon:'⛴️', name:'Дорога', keys:['Паромный порт Гилиманук', 'Паромный порт Кетапанг', 'Mutia Rental — прокат авто'].map(J), qa:JAVA_HOWTO, qaTitle:'🚢 Как добраться до Явы' },
+      { id:'tips', icon:'💡', name:'Советы', qa:JAVA_INFO, qaTitle:'💡 Самостоятельно: что важно знать' },
+    ] },
+  { id:'penida', icon:'🏝️', name:'Нуса Пенида', hint:'Келингкинг, Брокен Бич, манты', photo:I('Нуса Пенида'), cats:[{ id:'see', icon:'📍', name:'Места', keys:[I('Нуса Пенида')] }, { id:'road', icon:'⛴️', name:'Как добраться', qa:[ISLANDS_HOWTO[1]] }] },
+  { id:'lembongan', icon:'🌊', name:'Нуса Лембонган', hint:'Тихие пляжи рядом с Пенидой', photo:I('Нуса Лембонган'), cats:[{ id:'see', icon:'📍', name:'Места', keys:[I('Нуса Лембонган')] }, { id:'road', icon:'⛴️', name:'Как добраться', qa:[ISLANDS_HOWTO[2]] }] },
+  { id:'gili', icon:'🐢', name:'Гили', hint:'Черепахи, снорклинг, без машин', photo:I('Острова Гили'), cats:[{ id:'see', icon:'📍', name:'Места', keys:[I('Острова Гили')] }, { id:'road', icon:'⛴️', name:'Как добраться', qa:[ISLANDS_HOWTO[3]] }] },
+  { id:'lombok', icon:'⛰️', name:'Ломбок', hint:'«Бали 20 лет назад», Розовый пляж', photo:I('Ломбок'), cats:[{ id:'see', icon:'📍', name:'Места', keys:[I('Ломбок'), I('Розовый пляж Pink Beach (Pantai Tangsi)')] }, { id:'road', icon:'⛴️', name:'Как добраться', qa:[ISLANDS_HOWTO[4]] }] },
+  { id:'komodo', icon:'🦎', name:'Комодо', hint:'Вараны, Падар, Розовый пляж', photo:I('Национальный парк Комодо'), cats:[{ id:'see', icon:'📍', name:'Места', keys:[I('Национальный парк Комодо')] }, { id:'road', icon:'⛴️', name:'Как добраться', qa:[ISLANDS_HOWTO[6]] }] },
+  { id:'menjangan', icon:'🐠', name:'Менджанган', hint:'Лучший снорклинг у Бали', photo:I('Остров Менджанган'), cats:[{ id:'see', icon:'📍', name:'Места', keys:[I('Остров Менджанган')] }, { id:'road', icon:'⛴️', name:'Как добраться', qa:[ISLANDS_HOWTO[5]] }] },
+  { id:'sumba', icon:'🐎', name:'Сумба', hint:'Дикие пляжи и деревни', photo:I('Остров Сумба'), cats:[{ id:'see', icon:'📍', name:'Места', keys:[I('Остров Сумба')] }] },
+]
+const ISLAND_IDS = ISLANDS.map(x => x.id)
+const itemOf = k => { const [sid, ...t] = k.split(':'), sec = SECTIONS.find(x => x.id === sid); return sec && [sec, sec.items.find(i => i.title === t.join(':'))] }
+// На каком острове и в каком подблоке карточка
+function islandOf(k) {
+  for (const isl of ISLANDS) { const c = isl.cats.find(c => (c.keys || []).includes(k)); if (c) return [isl, c.id]; if ((isl.also || []).includes(k)) return [isl, isl.cats[0].id] }
+  return null
+}
+const islCount = isl => isl.cats.reduce((n, c) => n + (c.keys || []).length, 0)
+function renderIslandsHome() {
+  const sec = SECTIONS.find(x => x.id === 'islands')
+  return `<h2>⛵ Острова и поездки</h2>
+    <p class="lead">${ownTxt(sec.lead)} Выберите остров.</p>
+    <div class="itiles">${ISLANDS.map(isl => { const ph = PHOTOS[isl.photo]
+      return `<button class="itile" data-sub="${isl.id}">${ph ? `<img src="${ph[0]}" alt="" loading="lazy" style="object-position:${ph[5] || '50% 50%'}">` : `<div class="ic pr-islands">${isl.icon}</div>`}
+        <div class="it"><b>${isl.icon} ${isl.name}</b><span>${isl.hint}</span>${isl.routes ? `<em>🗺️ ${isl.routes.length} готовых маршрута</em>` : ''}</div></button>` }).join('')}</div>
+    <h4>🧭 Лодки и паромы</h4><details class="qa"><summary>${ISLANDS_HOWTO[0].q}</summary><div class="a">${ISLANDS_HOWTO[0].a}</div></details>`
+}
+function renderIsland(id) {
+  const isl = ISLANDS.find(x => x.id === id), cur = icat || isl.cats[0].id, cat = isl.cats.find(c => c.id === cur)
+  const qa = list => list.map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')
+  const cards = keys => keys.map(itemOf).filter(x => x && x[1]).map(([sec, it]) => card(sec, it)).join('')
+  const body = cur === 'routes'
+    ? `<h3 class="rsec">🗺️ Готовые маршруты</h3>${isl.routes.map((r, i) => javaRouteHtml(r, i === 0)).join('')}`
+    : `${cat.qa ? `${cat.keys ? `<h3 class="rsec">${cat.qaTitle}</h3>` : ''}${qa(cat.qa)}` : ''}${cat.keys ? `${cat.qa ? `<h3 class="rsec">${cat.icon} ${cat.name}</h3>` : ''}<div class="cards">${cards(cat.keys)}</div>` : ''}`
+  return `<h2>${isl.icon} ${isl.name}</h2>
+    ${isl.lead ? `<p class="lead">${isl.lead}</p>` : ''}
+    ${isl.warn ? `<div class="rwarn">⚠️ ${isl.warn}</div>` : ''}
+    ${isl.routes ? `<button class="ibig ${cur === 'routes' ? 'on' : ''}" data-icat="routes">🗺️ Готовые маршруты <small>${isl.routes.map(r => r.short).join(' · ')}</small></button>` : ''}
+    ${isl.cats.length > 1 ? `<div class="hs sub"><button class="arr l" data-arr="-1" aria-label="Листать влево">‹</button><div class="subnav">${isl.cats.map(c => `<button class="${c.id === cur ? 'on' : ''}" data-icat="${c.id}">${c.icon} ${c.name}${c.keys ? ` <small>${c.keys.length}</small>` : ''}</button>`).join('')}</div><button class="arr r" data-arr="1" aria-label="Листать вправо">›</button></div>` : ''}
+    ${body}
+    ${isl.id !== 'java' ? `<div class="note">Остров будем пополнять: места, кафе, жильё и готовые маршруты.</div>` : `<div class="note">Цены и правила — по данным на ноябрь 2026. Вулканы и паромы часто меняют расписание — проверяйте перед выездом.</div>`}`
 }
 
 function renderSection(sec, reg) {
@@ -2949,7 +3005,8 @@ function renderPage(id) {
   if (id === 'taxi') return renderTaxi()
   if (id === 'mine') return renderMine()
   if (id === 'laundry') return renderLaundry(SECTIONS.find(s => s.id === id))
-  if (id === 'java') return renderJava(SECTIONS.find(s => s.id === id))
+  if (id === 'islands') return renderIslandsHome()
+  if (ISLAND_IDS.includes(id)) return renderIsland(id)
   return renderSection(SECTIONS.find(s => s.id === id))
 }
 
@@ -2966,6 +3023,8 @@ function render() {
   const g = groupOf(tab)
   view.innerHTML = `<button class="back" data-back="1">← Назад</button>` + (g.region ? renderRegion(tab) : g.subs ? subnav(g) + renderPage(sub) : renderPage(tab))
   if (tab === 'map') setTimeout(drawMap, 0)
+  // активная кнопка в ленте подразделов — всегда на виду
+  view.querySelectorAll('.subnav').forEach(r => { const b = r.querySelector('.on'); if (b) r.scrollLeft = b.offsetLeft - r.offsetLeft - (r.clientWidth - b.clientWidth) / 2 })
   updArrows()
   if (typeof cubEl !== 'undefined' && cubEl) { cubStop(); setTimeout(cubOnScroll, 60) }
 }
@@ -2987,7 +3046,7 @@ function remember() {
 }
 window.addEventListener('popstate', e => {
   const st = e.state || { tab:'home', sub:'' }
-  tab = st.tab; sub = st.sub; areaFilter = ''; query = ''
+  tab = st.tab; sub = st.sub; areaFilter = ''; query = ''; icat = ''
   document.getElementById('q').value = ''
   render()
   const el = document.querySelector(`#tabs [data-tab="${tab}"]`)
@@ -3049,7 +3108,8 @@ document.addEventListener('click', e => {
       () => { me.textContent = '📍 Рядом со мной'; alert('Не получилось определить место — разрешите доступ к геолокации') }, { enableHighAccuracy:true, timeout:10000 })
     return
   }
-  const sb = e.target.closest('[data-sub]'); if (sb) { sub = sb.dataset.sub; areaFilter = ''; render(); return remember() }
+  const ic = e.target.closest('[data-icat]'); if (ic) { icat = ic.dataset.icat; render(); const el = document.querySelector('.ibig, .hs.sub'); if (el && el.getBoundingClientRect().top < 0) scrollTo({ top:el.getBoundingClientRect().top + scrollY - document.querySelector('nav.tabs').offsetHeight - 8 }); return }
+  const sb = e.target.closest('[data-sub]'); if (sb) { sub = sb.dataset.sub; areaFilter = ''; icat = ''; render(); if (tab === 'islands') window.scrollTo({ top: topOfPage() }); return remember() }
   const a = e.target.closest('[data-area]'); if (a) { areaFilter = a.dataset.area; return render() }
   const f = e.target.closest('[data-fav]'); if (f) return toggleFav(f.dataset.fav)
   const d = e.target.closest('[data-del]'); if (d) return removeRow(d.dataset.del)
