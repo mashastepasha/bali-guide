@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261114-1700">
+<meta name="build" content="20261115-1200">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -229,8 +229,7 @@
                   outline:none; color:var(--ink); min-width:0; }
   .search button { border:0; background:none; padding:0 14px; font-size:18px; color:var(--muted); cursor:pointer; }
 
-  nav.tabs { position:sticky; top:0; z-index:10; background:rgba(251,245,234,.97);
-             backdrop-filter:blur(8px); }
+  nav.tabs { position:sticky; top:0; z-index:10; background:#FBF5EA; }
   nav.tabs::after { content:""; display:block; height:6px; background:var(--stripe) 0 40%/90px 90px; }
   .tabs .row { display:flex; gap:6px; overflow-x:auto; padding:10px 16px; scrollbar-width:none; }
   .hs { position:relative; max-width:860px; margin:0 auto; }
@@ -723,6 +722,24 @@ document.head.append(Object.assign(document.createElement('style'), { textConten
   ...Object.entries(THEME).map(([id, [kind, colors]]) =>
     `.pr-${id}{background-image:${DRAW[kind](colors)};background-size:${SIZE[kind][0]}px ${SIZE[kind][1]}px}`),
 ].join('\n') }))
+// Узоры рисуются в SVG с фильтрами шума — красиво, но телефон пересчитывает их на каждой карточке при прокрутке.
+// После загрузки один раз переводим каждый узор в PNG и подменяем; если браузер не даст — остаются SVG.
+setTimeout(async () => {
+  try {
+    const toPng = async (cssUrl, w, h) => {
+      const img = new Image(); img.src = cssUrl.slice(5, -2); await img.decode()
+      const c = document.createElement('canvas'), k = 2; c.width = Math.round(w * k); c.height = Math.round(h * k)
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height)
+      const blob = await new Promise(r => c.toBlob(r, 'image/png')); if (!blob) throw 0
+      return `url(${URL.createObjectURL(blob)})`
+    }
+    const done = {}, css = []
+    const get = (kind, colors) => { const key = kind + colors.join(); return done[key] || (done[key] = toPng(DRAW[kind](colors), SIZE[kind][0], SIZE[kind][1])) }
+    css.push(`:root{--stripe:${await get('tiger', ['#E8A04A', '#C9762A', '#1B120C'])}}`)
+    for (const [id, [kind, colors]] of Object.entries(THEME)) css.push(`.pr-${id}{background-image:${await get(kind, colors)}}`)
+    document.head.append(Object.assign(document.createElement('style'), { textContent: css.join('\n') }))
+  } catch (e) {}
+}, 400)
 </script>
 </head>
 <body>
@@ -3217,6 +3234,7 @@ function renderSection(sec, reg) {
     <div class="note">Цены и часы работы — ориентир на 2026 год. Перед поездкой уточняйте в Google Maps или Instagram заведения.</div>`
 }
 
+let searchLimit = 24
 function renderSearch() {
   // отрезаем окончание, чтобы «виза» находила и «визу», и «визы»
   const words = query.toLowerCase().split(/\s+/).filter(Boolean)
@@ -3232,10 +3250,10 @@ function renderSearch() {
   const total = faq.length + checks.length + laws.length + found.length
   return `<h2>🔍 «${esc(query)}»</h2>
     <p class="lead">${total ? `Найдено: ${total}` : 'Ничего не нашлось — попробуйте другое слово.'}</p>
-    ${checks.length ? `<h4>✅ Чек-листы и советы</h4>${checks.map(c => `<div class="surprise"><b>${c.t}</b><span>${c.d}</span></div>`).join('')}` : ''}
-    ${faq.length ? `<h4>🛂 Въезд, вождение, здоровье, зимовка</h4>${faq.map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')}` : ''}
+    ${checks.length ? `<h4>✅ Чек-листы и советы</h4>${checks.slice(0, 20).map(c => `<div class="surprise"><b>${c.t}</b><span>${c.d}</span></div>`).join('')}` : ''}
+    ${faq.length ? `<h4>🛂 Въезд, вождение, здоровье, зимовка</h4>${faq.slice(0, 30).map(f => `<details class="qa"><summary>${f.q}</summary><div class="a">${f.a}</div></details>`).join('')}` : ''}
     ${laws.length ? `<h4>🛡️ Законы и безопасность</h4>${laws.map(lawCard).join('')}` : ''}
-    ${found.length ? `<h4>📍 Места</h4><div class="cards">${found.map(([s, i]) => card(s, i, true)).join('')}</div>` : ''}`
+    ${found.length ? `<h4>📍 Места · ${found.length}</h4><div class="cards">${found.slice(0, searchLimit).map(([s, i]) => card(s, i, true)).join('')}</div>${found.length > searchLimit ? `<button class="btn rgo" data-smore="1">Показать ещё ${Math.min(48, found.length - searchLimit)} из ${found.length - searchLimit}</button>` : ''}` : ''}`
 }
 
 function renderMine() {
@@ -3354,6 +3372,7 @@ document.addEventListener('click', e => {
   const ar = e.target.closest('[data-arr]'); if (ar) { const r = ar.parentElement.querySelector('.row, .subnav'); return r.scrollBy({ left: ar.dataset.arr * r.clientWidth * .7, behavior:'smooth' }) }
   const bk = e.target.closest('[data-back]'); if (bk) return history.state && history.state.d > 0 ? history.back() : go('home')
   const t = e.target.closest('[data-tab]'); if (t) return go(t.dataset.tab)
+  if (e.target.closest('[data-smore]')) { const y = scrollY; searchLimit += 48; render(); return scrollTo(0, y) }
   const rc = e.target.closest('[data-rcat]'); if (rc) { sub = defaultSub(tab, CATS.find(c => c.id === rc.dataset.rcat)); areaFilter = ''; render(); remember(); const y = document.querySelector('.rsecs, .cards, h3.rsec'); return }
   const rg = e.target.closest('[data-rready-go]'); if (rg) { routeView = { ready:rg.dataset.rreadyGo }; return go('route') }
   const rt = e.target.closest('[data-route]'); if (rt) { const k = rt.dataset.route; route.must = route.must.includes(k) ? route.must.filter(x => x !== k) : [...route.must, k]; saveRoute(); const y = scrollY; render(); scrollTo(0, y); if (route.must.includes(k)) toast('🧭 Добавлено в маршрут — откройте раздел «Маршрут»'); return }
@@ -3423,13 +3442,21 @@ document.addEventListener('submit', e => {
   if (e.target.id === 'setName') { e.preventDefault(); setName(new FormData(e.target).get('name') || '') }
   if (e.target.id === 'setPw') { e.preventDefault(); setPassword(new FormData(e.target).get('password')) }
 })
-document.getElementById('searchForm').onsubmit = e => { e.preventDefault(); query = document.getElementById('q').value.trim(); render() }
+document.getElementById('searchForm').onsubmit = e => { e.preventDefault(); clearTimeout(qTimer); query = document.getElementById('q').value.trim(); searchLimit = 24; render(); document.getElementById('q').blur() }
 document.addEventListener('input', e => {
   if (e.target.id !== 'mapq') return
   const v = e.target.value, p = mapPlaces().find(x => `${x.it.title} · ${x.sec.name}` === v)
   if (p) { mapCenterKey = p.k; mapUserPos = null; drawMap(); e.target.blur() }
 })
-document.getElementById('q').oninput = e => { query = e.target.value.trim(); render() }
+let qTimer = 0
+document.getElementById('q').oninput = e => {
+  clearTimeout(qTimer)
+  const v = e.target.value.trim()
+  // пустая строка — сразу назад к разделу; одна буква — ещё не ищем; дальше — после паузы в наборе
+  if (!v) { if (query) { query = ''; render() } return }
+  if (v.length < 2) return
+  qTimer = setTimeout(() => { query = v; searchLimit = 24; render() }, 350)
+}
 
 // ── Облако: чтение и запись ──────────────────────────────────
 async function load() {
