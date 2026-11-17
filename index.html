@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#2B1D14">
-<meta name="build" content="20261117-2200">
+<meta name="build" content="20261117-2330">
 <title>BaliGuide для беларусиков</title>
 <!-- Значок на экране «Домой»: тигрус на закате; короткое имя под значком -->
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
@@ -3319,6 +3319,31 @@ const LEMB_INFO = [
   { q:'⚠️ Безопасность', a:`<ul><li><b>Dream Beach</b> — сильные отбойные течения, дальше колена не заходите.</li><li><b>Devil's Tear</b> — волны внезапно накрывают скалы, к краю не подходите.</li><li><b>Blue Lagoon</b> — купаться нельзя; прыгать только при спокойной волне и с напарником. На <b>Mahana Point</b> — в прилив, по лестнице.</li><li>Купаться спокойно — в Mushroom Bay и на Secret Beach.</li><li>Скутер — только если уверенно ездите: грунтовка и крутые подъёмы, ночью темно.</li></ul>` },
   { q:'🧭 Как передвигаться', a:`<ul><li>Скутер 80 000–100 000 Rp в день; без международных прав страховка может не покрыть аварию.</li><li>Грузовичок-такси 300 000–600 000 Rp за полдня на компанию; багги ~900 000 Rp за 4–5 часов (на Ченинган не проедет).</li><li>Grab и Gojek на острове нет.</li><li>На Нуса Пениду — лодка от Жёлтого моста до Тоя Пакеха каждый час, 10–15 минут.</li></ul>` },
 ]
+
+// ── Совместные маршруты с Лембонганом ──
+const LEMB_COMBO = [
+  { id:'lg4b', icon:'🌊', short:'Лембонган + Гили: 4 ночи', name:'Лембонган + Гили — 4 дня, 4 ночи', how:'Две ночи на Лембонгане, потом прямая лодка на Гили (без возвращения на Бали): ночь на Траванган и ночь на Гили Эйр. Домой — фастботом с Эйр.', days:[
+    { t:'Лембонган: мангры и закат', steps:[['09:00', 'Лодка из Санура', NL('Фастбот Санур → Лембонган')], ['10:00', 'Заселение', NL('KiBata Boutique Hotel')], ['11:00', 'Мангровый лес на каяке', NL('Мангровый лес')], ['13:00', 'Обед в Ginger & Jamu', NL('Ginger & Jamu')], ['15:00', 'Купание в Mushroom Bay', NL('Mushroom Bay')], ['17:30', "Закат и костёр в Ohana's", NL("Ohana's Beach Club")]], stay:NL('KiBata Boutique Hotel') },
+    { t:'Манты и Ченинган', steps:[['08:00', 'Снорклинг с мантами, ~3 часа', NL('Снорклинг с мантами с Лембонгана')], ['12:30', 'Жёлтый мост и обед в Sea Breeze', NL('Sea Breeze Ceningan')], ['14:00', 'Blue Lagoon и зиплайн Abyss', NL('Abyss Zipline')], ['16:00', "Dream Beach Cliff и Devil's Tear", NL("Devil's Tear")], ['17:30', 'Закат в Sandy Bay', NL('Sandy Bay Beach Club')]], stay:NL('KiBata Boutique Hotel') },
+    { t:'Лодка на Гили Траванган', steps:[['10:30', 'Прямая лодка на Гили, ~2 часа', NL('Фастбот Лембонган → Гили')], ['13:00', 'Заселение и обед в La Cala', G('La Cala Beach Club')], ['15:00', 'Черепахи с берега', G('Turtle Point — черепахи у берега')], ['17:30', 'Закат с качелями', G('Закат с качелями')], ['19:30', 'Ночной рынок', G('Ночной рынок')]], stay:G('Pesona Beach Resort & Spa'), tip:'Лодки с Лембонгана на Гили бывают с пересадкой на Пениде и опаздывают на 1–2 часа — не планируйте на этот день ничего жёсткого.' },
+    { t:'Гили Эйр', steps:[['09:30', 'Лодка на Гили Эйр', G('Лодки между островами')], ['10:30', 'Снорклинг с берега и велосипед', G('Гили Эйр')], ['17:30', 'Закат на западной стороне'], ['19:30', 'Ужин в Santorini', G('Santorini Greek Restaurant & Resort')]], stay:G('MoonBag Bungalows') },
+    { t:'Утро — домой', steps:[['06:00', 'Рассвет с видом на Ринджани'], ['10:30', 'Фастбот на Бали с Гили Эйр', G('Фастбот с Бали')]] },
+  ]},
+  { id:'plg6', icon:'🏝️', short:'Пенида + Лембонган + Гили: 6 ночей', name:'Нуса Пенида + Лембонган + Гили — 6 дней, 6 ночей', how:'Все острова у Бали по цепочке: Бали → Пенида → Лембонган → Гили → Бали. Каждый переезд — короткая лодка, без возвратов.', days:[
+    { t:'Запад Пениды', steps:[['07:00', 'Лодка из Санура на Пениду', NP('Фастбот Санур → Пенида')], ['09:00', 'Келингкинг', NP('Келингкинг')], ['11:00', "Брокен Бич и Angel's Billabong (купель — только в отлив)", NP('Брокен Бич')], ['13:00', 'Обед и снорклинг в Crystal Bay', NP('Crystal Bay')], ['17:30', 'Закат в Crystal Bay', NP('Crystal Bay')]], stay:NP('Abasan Hill Hotel & Spa') },
+    { t:'Манты и на Лембонган', steps:[['08:00', 'Снорклинг с мантами', NP('Snorkeling with Manta')], ['13:00', 'Лодка Тоя Пакех → Жёлтый мост, 15 минут', NL('Лодка Лембонган ↔ Нуса Пенида')], ['14:30', 'Blue Lagoon и зиплайн Abyss', NL('Abyss Zipline')], ['17:00', 'Закат и костёр в Suku', NL('Suku Beach Club')]], stay:NL('KiBata Boutique Hotel') },
+    { t:'Лембонган', steps:[['08:00', 'Мангровый лес на каяке', NL('Мангровый лес')], ['11:00', "Dream Beach Cliff и Devil's Tear", NL('Dream Beach Cliff')], ['13:00', 'Обед и купание в Mushroom Bay', NL('Mushroom Bay')], ['17:30', 'Закат в Sandy Bay', NL('Sandy Bay Beach Club')]], stay:NL('Mahagiri Resort') },
+    { t:'Лодка на Гили Траванган', steps:[['10:30', 'Прямая лодка на Гили, ~2 часа', NL('Фастбот Лембонган → Гили')], ['13:00', 'Обед в La Cala', G('La Cala Beach Club')], ['15:00', 'Черепахи с берега', G('Turtle Point — черепахи у берега')], ['17:30', 'Закат с качелями', G('Закат с качелями')], ['19:30', 'Ночной рынок', G('Ночной рынок')]], stay:G('Pesona Beach Resort & Spa') },
+    { t:'День на Траванган', steps:[['08:00', 'Завтрак в Carpe Diem', G('Carpe Diem — Coffee & Restaurant')], ['09:30', 'Велосипед вокруг острова', G('Гили Траванган')], ['11:00', 'Пробное погружение или снорклинг-тур', G('Дайвинг на Гили')], ['17:30', 'Закат на западном берегу', G('Закат с качелями')]], stay:G('Pesona Beach Resort & Spa') },
+    { t:'Гили Эйр', steps:[['09:30', 'Лодка на Гили Эйр', G('Лодки между островами')], ['10:30', 'Снорклинг с берега', G('Гили Эйр')], ['17:30', 'Закат на западной стороне'], ['19:30', 'Ужин в Santorini', G('Santorini Greek Restaurant & Resort')]], stay:G('MoonBag Bungalows') },
+    { t:'Утро — домой', steps:[['06:00', 'Рассвет с видом на Ринджани'], ['10:30', 'Фастбот на Бали с Гили Эйр', G('Фастбот с Бали')]] },
+  ]},
+]
+const PNL2_ROUTE = { id:'pnl2', icon:'🦖', short:'Пенида + Лембонган: 2 ночи', name:'Нуса Пенида + Лембонган — 2 дня, 2 ночи', how:'Коротко: ночь на Пениде после запада и заката, утром манты и лодка на Лембонган, ночь там. Домой — утренней лодкой в Санур.', days:[
+  { t:'Запад Пениды', steps:[['07:00', 'Лодка из Санура на Пениду', NP('Фастбот Санур → Пенида')], ['09:00', 'Келингкинг', NP('Келингкинг')], ['11:00', "Брокен Бич и Angel's Billabong (купель — только в отлив)", NP('Брокен Бич')], ['13:00', 'Обед и снорклинг в Crystal Bay', NP('Crystal Bay')], ['17:30', 'Закат в Crystal Bay', NP('Crystal Bay')]], stay:NP('Abasan Hill Hotel & Spa'), tip:'Ночуйте у причала Тоя Пакех — завтра отсюда лодка на Лембонган.' },
+  { t:'Манты и Лембонган', steps:[['08:00', 'Снорклинг с мантами', NP('Snorkeling with Manta')], ['13:00', 'Лодка Тоя Пакех → Жёлтый мост, 15 минут', NL('Лодка Лембонган ↔ Нуса Пенида')], ['14:00', 'Обед в Sea Breeze на Ченингане', NL('Sea Breeze Ceningan')], ['15:00', 'Blue Lagoon и зиплайн Abyss', NL('Abyss Zipline')], ['17:00', 'Закат и костёр в Suku', NL('Suku Beach Club')]], stay:NL('KiBata Boutique Hotel') },
+  { t:'Утро — домой', steps:[['07:30', 'Заплыв в Mushroom Bay', NL('Mushroom Bay')], ['10:00', 'Лодка в Санур', NL('Фастбот Санур → Лембонган')]] },
+]}
 const I = t => 'islands:' + t
 const ISLANDS = [
   { id:'java', icon:'🌋', name:'Ява', hint:'Иджен, Бромо, Тумпак Севу, лес De Djawatan', photo:J('Кратер Иджен'), routes:JAVA_ROUTES, also:[I('Вулканы Бромо и Иджен')],
@@ -3332,7 +3357,7 @@ const ISLANDS = [
       { id:'road', icon:'⛴️', name:'Дорога', keys:['Паромный порт Гилиманук', 'Паромный порт Кетапанг', 'Mutia Rental — прокат авто'].map(J), qa:JAVA_HOWTO, qaTitle:'🚢 Как добраться до Явы' },
       { id:'tips', icon:'💡', name:'Советы', qa:JAVA_INFO, qaTitle:'💡 Самостоятельно: что важно знать' },
     ] },
-  { id:'penida', icon:'🏝️', name:'Нуса Пенида', hint:'Келингкинг, Брокен Бич, манты', photo:I('Нуса Пенида'), routes:[...PENIDA_ROUTES, ...PG_ROUTES, PNL_ROUTE], also:[I('Нуса Пенида')],
+  { id:'penida', icon:'🏝️', name:'Нуса Пенида', hint:'Келингкинг, Брокен Бич, манты', photo:I('Нуса Пенида'), routes:[...PENIDA_ROUTES, PNL2_ROUTE, PNL_ROUTE, ...PG_ROUTES, LEMB_COMBO[1]], also:[I('Нуса Пенида')],
     lead:'Скалистый остров в 40–50 минутах на лодке от Санура: «тираннозавр» Келингкинг, каменная арка Брокен Бич, пляжи востока и снорклинг с мантами. За один день успеете только запад — лучше остаться на 2–3 дня.',
     cats:[
       { id:'west', icon:'🦖', name:'Запад', keys:['Келингкинг', 'Брокен Бич', "Angel's Billabong", 'Crystal Bay', 'Banah Cliff', 'Лес и купели Tembeling', 'Лестница Пегуянган'].map(NP) },
@@ -3343,7 +3368,7 @@ const ISLANDS = [
       { id:'road', icon:'⛴️', name:'Дорога', keys:['Фастбот Санур → Пенида', 'Фастбот Паданг Бай → Пенида', 'Паром Паданг Бай → Сампалан', 'Причал Тоя Пакех / Банджар Нью', 'Причал Сампалан', 'Glory Rental Scooter', 'Байк или машина с водителем', 'gili:Фастбот Нуса Пенида → Гили', 'ride:Скоростные лодки', 'beach:Санур'].map(k => k.includes(':') ? k : NP(k)), qa:[ISLANDS_HOWTO[1]], qaTitle:'🚢 Как добраться до Нуса Пениды' },
       { id:'tips', icon:'💡', name:'Советы', qa:PENIDA_INFO },
     ] },
-  { id:'lembongan', icon:'🌊', name:'Нуса Лембонган', hint:'Ченинган, Жёлтый мост, бич-клабы на скалах', photo:I('Нуса Лембонган'), routes:[...LEMB_ROUTES, PNL_ROUTE], also:[I('Нуса Лембонган')],
+  { id:'lembongan', icon:'🌊', name:'Нуса Лембонган', hint:'Ченинган, Жёлтый мост, бич-клабы на скалах', photo:I('Нуса Лембонган'), routes:[...LEMB_ROUTES, PNL2_ROUTE, PNL_ROUTE, ...LEMB_COMBO], also:[I('Нуса Лембонган')],
     lead:'Маленький спокойный остров в 30–45 минутах от Санура и его сосед Ченинган, через Жёлтый мост. Бич-клабы на скалах с бассейнами, мангры, прыжки со скал и манты рядом. Тише Пениды — хорош на 1–2 ночи.',
     cats:[
       { id:'see', icon:'🏖️', name:'Пляжи и виды', keys:['Mushroom Bay', 'Dream Beach', 'Dream Beach Cliff', "Devil's Tear", 'Panorama Point', 'Пляж Джунгут-Бату', 'Мангровый лес'].map(NL) },
@@ -3354,7 +3379,7 @@ const ISLANDS = [
       { id:'road', icon:'⛴️', name:'Дорога', keys:['Фастбот Санур → Лембонган', 'Лодка Лембонган ↔ Нуса Пенида', 'Фастбот Лембонган → Гили', 'Скутер и транспорт на Лембонгане'].map(NL), qa:[ISLANDS_HOWTO[2]], qaTitle:'🚢 Как добраться до Лембонгана' },
       { id:'tips', icon:'💡', name:'Советы', qa:LEMB_INFO },
     ] },
-  { id:'gili', icon:'🐢', name:'Гили', hint:'Черепахи с берега, закаты, без машин', photo:I('Острова Гили'), routes:[...GILI_ROUTES, ...PG_ROUTES, ...COMBO_ROUTES], also:[I('Острова Гили')],
+  { id:'gili', icon:'🐢', name:'Гили', hint:'Черепахи с берега, закаты, без машин', photo:I('Острова Гили'), routes:[...GILI_ROUTES, ...PG_ROUTES, ...LEMB_COMBO, ...COMBO_ROUTES], also:[I('Острова Гили')],
     lead:'Три маленьких острова у Ломбока: Траванган, Мено и Эйр. С Бали — фастбот 1,5–2,5 часа. Машин и байков нет — велосипеды и пешком. Остров окружён рифами: снорклить с черепахами можно прямо с берега, а на западе — закаты над морем.',
     cats:[
       { id:'sea', icon:'🐢', name:'Снорклинг и черепахи', keys:['Turtle Point — черепахи у берега', 'Подводные статуи Nest', 'Черепашья ферма Гили Мено', 'Снорклинг-тур по трём островам', 'Дайвинг на Гили'].map(G) },
@@ -3408,7 +3433,7 @@ function renderIslandsHome() {
     <div class="itiles">${ISLANDS.map(isl => { const ph = PHOTOS[isl.photo]
       return `<button class="itile" data-sub="${isl.id}">${ph ? `<img src="${ph[0]}" alt="" loading="lazy" style="object-position:${ph[5] || '50% 50%'}">` : `<div class="ic pr-islands">${isl.icon}</div>`}
         <div class="it"><b>${isl.icon} ${isl.name}</b><span>${isl.hint}</span>${isl.routes ? `<em>🗺️ ${isl.routes.length} ${isl.routes.length === 1 ? 'готовый маршрут' : isl.routes.length < 5 ? 'готовых маршрута' : 'готовых маршрутов'}</em>` : ''}</div></button>` }).join('')}</div>
-    <h4>🧭 Маршруты по нескольким островам</h4>${[...PG_ROUTES, PNL_ROUTE, ...COMBO_ROUTES].map(r => javaRouteHtml(r)).join('')}
+    <h4>🧭 Маршруты по нескольким островам</h4>${[PNL2_ROUTE, PNL_ROUTE, ...PG_ROUTES, ...LEMB_COMBO, ...COMBO_ROUTES].map(r => javaRouteHtml(r)).join('')}
     <h4>🧭 Лодки и паромы</h4><details class="qa"><summary>${ISLANDS_HOWTO[0].q}</summary><div class="a">${ISLANDS_HOWTO[0].a}</div></details>`
 }
 function renderIsland(id) {
